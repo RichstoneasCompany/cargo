@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{tripUpdateForm.title}">Title</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+</head>
+<body>
+
+<header th:replace="fragments/header::header"></header>
+<div class="main-content container-fluid" layout:fragment="content">
+    <section class="section">
+        <table class="table">
+            <tbody>
+            <tr>
+                <td>Photo:</td>
+                <td><img th:src="@{'data:image/png;base64,' + ${encodedImg}}" alt="Driver Image" style="width: 100px; height: 100px;"/></td>
+            </tr>
+            <tr>
+                <td>Username:</td>
+                <td th:text="${driver.getUser().username}"></td>
+            </tr>
+            <tr>
+                <td>Firstname:</td>
+                <td th:text="${driver.getUser().firstname}"></td>
+            </tr>
+            <tr>
+                <td>Lastname:</td>
+                <td th:text="${driver.getUser().lastname}"></td>
+            </tr>
+            <tr>
+                <td>Phone:</td>
+                <td th:text="${driver.getUser().phone}"></td>
+            </tr>
+            <tr>
+                <td>Email:</td>
+                <td th:text="${driver.getUser().email}"></td>
+            </tr>
+            <tr>
+                <td>License Number:</td>
+                <td th:text="${driver.licenseNumber}"></td>
+            </tr>
+            <tr>
+                <td>Truck Model:</td>
+                <td th:text="${truck != null ? truck.model : 'N/A'}"></td>
+            </tr>
+            <tr>
+                <td>Truck Number Plate:</td>
+                <td th:text="${truck != null ? truck.numberPlate : 'N/A'}"></td>
+            </tr>
+            <tr>
+                <td>Truck Max Perm Mass:</td>
+                <td th:text="${truck != null ? truck.maxPermMass : 'N/A'}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+
+
+
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var form = document.querySelector("form");
+
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault();
+
+                    var newDepartureTime = document.getElementById("departureTime").value;
+                    var newArrivalTime = document.getElementById("arrivalTime").value;
+                    var newRouteId = document.getElementById("routes").value;
+                    var newAssignedDriverId = document.getElementById("drivers").value;
+                    var newTripStatus = document.getElementById("tripStatus").value;
+
+                    document.querySelector("input[name=oldDepartureTime]").value = newDepartureTime;
+                    document.querySelector("input[name=oldArrivalTime]").value = newArrivalTime;
+                    document.querySelector("input[name=route]").value = newRouteId;
+                    document.querySelector("input[name=assignedDriver]").value = newAssignedDriverId;
+                    document.querySelector("input[name=tripStatus]").value = newTripStatus;
+
+                    form.submit();
+                });
+            });
+        </script>
+
+
+        <div class="col-12 mt-3">
+            <a th:href="@{/trips}" class="btn btn-secondary" th:text="#{tripUpdateForm.back}">Go back</a>
+        </div>
+    </section>
+</div>
+</body>
+
+
+</html>

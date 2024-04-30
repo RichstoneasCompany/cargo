@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{locationForm.title}">Title</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+</head>
+<body>
+
+<header th:replace="fragments/header::header"></header>
+<div class="main-content container-fluid" layout:fragment="content">
+    <section class="section">
+
+        <form action="/locations/save" method="post" th:object="${locationDto}" onsubmit="return validarFormulario()"
+              class="row g-3">
+            <div class="col-md-6">
+                <label for="address" class="form-label" th:text="#{locationForm.address}">Address:</label>
+                <input type="text" id="address" name="address" th:field="*{address}" class="form-control"
+                       th:placeholder="#{locationForm.example}" />
+            </div>
+            <div class="col-12">
+                <button type="submit" value="Save" class="btn btn-success" th:text="#{locationForm.save}">Save Location</button>
+            </div>
+        </form>
+
+
+        <div class="col-12 mt-3">
+            <a th:href="@{/locations}" class="btn btn-secondary" th:text="#{locationForm.back}">Go back</a>
+        </div>
+    </section>
+</div>
+</body>
+
+</html>

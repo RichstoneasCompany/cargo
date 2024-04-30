@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<body>
+
+<div id="sidebar" class='active' th:fragment="sidebar">
+    <div class="sidebar-wrapper active">
+        <div class="sidebar-header">
+            <img src="/images/img.png" alt="" srcset="">
+        </div>
+        <div class="sidebar-menu">
+            <ul class="menu">
+                <li class='sidebar-title' th:text="#{sidebar.menu}">Main Menu</li>
+
+                <li class="sidebar-item active ">
+                    <a href="/" class='sidebar-link'>
+                        <i data-feather="home" width="20"></i>
+                        <span th:text="#{sidebar.dashboard}">Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item  has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i data-feather="users" width="20"></i>
+                        <span th:text="#{sidebar.manage}">Управление водителями</span>
+                    </a>
+
+                    <ul class="submenu ">
+
+                        <li>
+                            <a th:href="@{/drivers/inactiveDrivers}" th:text="#{sidebar.inactiveDrivers}">Inactive Drivers</a>
+                        </li>
+
+                        <li>
+                            <a th:href="@{/drivers}" th:text="#{sidebar.driversList}">Drivers list</a>
+                        </li>
+                        <li>
+                            <a th:href="@{/drivers/deletedDrivers}" th:text="#{sidebar.driversArchive}">History of drivers</a>
+                        </li>
+
+                    </ul>
+                </li>
+
+                <li class="sidebar-item  has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i data-feather="truck" width="20"></i>
+                        <span th:text="#{sidebar.manageTrips}">Управление поездками</span>
+                    </a>
+
+                    <ul class="submenu ">
+                        <li>
+                            <a th:href="@{/locations}" th:text="#{sidebar.locations}">Locations</a>
+                        </li>
+                        <li>
+                            <a th:href="@{/routes}" th:text="#{sidebar.routes}">Routes</a>
+                        </li>
+                        <li>
+                            <a th:href="@{/trips}" th:text="#{sidebar.trips}">Trips</a>
+                        </li>
+                        <li>
+                            <a th:href="@{/trips/activeTrips}" th:text="#{sidebar.activeTrips}">Active trips</a>
+                        </li>
+                        <li>
+                            <a th:href="@{/trips/archive}" th:text="#{sidebar.finishedTrips}" >Finished trips</a>
+                        </li>
+                    </ul>
+
+                </li>
+                <li class="sidebar-item  has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i data-feather="more-horizontal" width="20"></i>
+                        <span th:text="#{sidebar.other}">Остальное</span>
+                    </a>
+
+                    <ul class="submenu ">
+                        <li>
+                            <a th:href="@{/dispatchers}" sec:authorize="hasRole('ADMIN')" th:text="#{sidebar.dispatchers}">Dispatchers</a>
+                        </li>
+
+                        <li>
+                            <a th:href="@{/topics}" th:text="#{sidebar.help}">Help</a>
+                        </li>
+
+
+
+                    </ul>
+
+                </li>
+                <li class="sidebar-item-lang-kz">
+                    <a id="kz" class="translate" href="/?lang=kz">
+                        <img src="/images/kz.svg" alt="" width="40px" height="30px">
+                    </a>
+                </li>
+
+                <li class="sidebar-item-lang-ru">
+                    <a id="ru" class="translate" href="/?lang=ru">
+                        <img src="/images/ru.svg" alt="" width="40px" height="30px">
+                    </a>
+                </li>
+
+                <li class="sidebar-item-lang-en">
+                    <a id="en" class="translate" href="/?lang=en">
+                        <img src="/images/gb.svg" alt="" width="40px" height="30px">
+                    </a>
+                </li>
+
+
+            </ul>
+
+        </div>
+        <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
+    </div>
+</div>
+</body>
+</html>

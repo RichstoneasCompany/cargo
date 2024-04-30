@@ -1,0 +1,25 @@
+[versions]
+mapstruct = "1.5.5.Final"
+springdoc-openapi-starter-webmvc-ui = "2.3.0"
+jjwt-api = "0.11.5"
+twilio = "10.1.0"
+thymeleaf-extras="3.1.2.RELEASE"
+thymeleaf-layouts="3.3.0"
+firebase="9.2.0"
+
+
+
+
+[libraries]
+mapstruct = { module = "org.mapstruct:mapstruct", version.ref="mapstruct" }
+mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref="mapstruct"}
+springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref="springdoc-openapi-starter-webmvc-ui" }
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api",version.ref="jjwt-api" }
+jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl" ,version.ref="jjwt-api"}
+jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson",version.ref="jjwt-api" }
+twilio = { module = "com.twilio.sdk:twilio",version.ref="twilio" }
+thymeleaf-extras={ module = "org.thymeleaf.extras:thymeleaf-extras-springsecurity6", version.ref="thymeleaf-extras"}
+thymeleaf-layouts={ module = "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect", version.ref="thymeleaf-layouts"}
+firebase={ module = "com.google.firebase:firebase-admin", version.ref="firebase"}
+
+

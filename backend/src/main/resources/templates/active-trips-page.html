@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{tripPage.title}">Trips </title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="main-content container-fluid" layout:fragment="content">
+
+    <section class="section">
+        <div class="container mt-3">
+            <h3> Active Trips</h3>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th th:text="#{tripPage.route}">Route</th>
+                    <th th:text="#{tripPage.departureTime}">Departure Time</th>
+                    <th th:text="#{tripPage.arrivalTime}">Arrival Time</th>
+                    <th th:text="#{tripPage.tripStatus}">Trip Status</th>
+                    <th th:text="#{tripPage.driver}">Assigned Driver</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="trip : ${trips}">
+                    <td th:text="${trip.route.name}"></td>
+                    <td th:text="${trip.departureTime}"></td>
+                    <td th:text="${trip.arrivalTime}"></td>
+                    <td th:text="${trip.tripStatus}"></td>
+                    <td th:text="${trip.assignedDriver != null ? (trip.assignedDriver.getUser().firstname + ' ' + trip.assignedDriver.getUser().lastname) : 'N/A'}"></td>
+
+                    <td sec:authorize="hasAnyRole('DRIVER','ADMIN', 'DISPATCHER')">
+                        <a th:href="@{/trips/formForUpdateTrip(id=${trip.id})}" class="btn btn-warning btn-sm" th:text="#{tripPage.edit}">Edit</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </section>
+</div>
+</body>
+</html>

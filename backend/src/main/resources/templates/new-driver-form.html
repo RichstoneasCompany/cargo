@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{newDriverForm.title}">Title</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+</head>
+<body>
+
+<header th:replace="~{fragments/sidebar :: sidebar}"></header>
+<div class="main-content container-fluid" layout:fragment="content">
+    <section class="section">
+
+        <form action="/drivers/add" method="post" th:object="${driverForm}" onsubmit="return validarFormulario()"
+              class="row g-3">
+            <div class="col-md-6">
+                <label for="username" class="form-label" th:text="#{newDriverForm.username}">Username:</label>
+                <input type="text" id="username" name="username" th:field="*{user.username}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="firstname" class="form-label" th:text="#{newDriverForm.firstName}">First Name:</label>
+                <input type="text" id="firstname" name="firstname" th:field="*{user.firstname}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="lastname" class="form-label" th:text="#{newDriverForm.lastName}">Last Name:</label>
+                <input type="text" id="lastname" name="lastname" th:field="*{user.lastname}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="birthdate" class="form-label" th:text="#{driverForm.birthdate}">Birth Date:</label>
+                <input type="date" id="birthdate" name="birthdate" th:field="*{user.birthDate}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="role" class="form-label" th:text="#{driverForm.gender}" >Gender:</label>
+                <select id="gender" name="gender" th:field="*{user.gender}" class="form-select">
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="email" class="form-label" th:text="#{newDriverForm.email}">Email:</label>
+                <input type="email" id="email" name="email" th:field="*{user.email}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="phone" class="form-label" th:text="#{newDriverForm.phone}">Phone:</label>
+                <input type="text" id="phone" name="phone" th:field="*{user.phone}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="password" class="form-label" th:text="#{newDriverForm.password}">Phone:</label>
+                <input type="text" id="password" name="password" th:field="*{user.password}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="licenseNumber" class="form-label" >License Number:</label>
+                <input type="text" id="licenseNumber" name="licenseNumber" th:field="*{licenseNumber}" class="form-control">
+            </div>
+
+
+
+            <div class="col-md-6">
+                <label for="truckModel" class="form-label">Truck Model:</label>
+                <input type="text" id="truckModel" name="truckModel" th:field="*{truck.model}"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="numberPlate" class="form-label" >Number Plate:</label>
+                <input type="text" id="numberPlate" name="numberPlate" th:field="*{truck.numberPlate}"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="maxPermMass" class="form-label" >Max Permissible
+                    Mass:</label>
+                <input type="text" id="maxPermMass" name="maxPermMass" th:field="*{truck.maxPermMass}"
+                       class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="mass" class="form-label" >Mass:</label>
+                <input type="text" id="mass" name="mass" th:field="*{truck.mass}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="axleLoad" class="form-label" >Axle Load:</label>
+                <input type="text" id="axleLoad" name="axleLoad" th:field="*{truck.axleLoad}"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="height" class="form-label" >Height:</label>
+                <input type="text" id="height" name="height" th:field="*{truck.height}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="width" class="form-label" >Width:</label>
+                <input type="text" id="width" name="width" th:field="*{truck.width}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="length" class="form-label" >Length:</label>
+                <input type="text" id="length" name="length" th:field="*{truck.length}" class="form-control">
+            </div>
+
+            <div class="col-12">
+                <button type="submit" value="Save" class="btn btn-success" th:text="#{newDriverForm.save}">Save User</button>
+            </div>
+
+        </form>
+
+        <div class="col-12 mt-3">
+            <a th:href="@{/drivers}" class="btn btn-secondary" th:text="#{newDriverForm.back}">Go back</a>
+        </div>
+    </section>
+</div>
+</body>
+
+</html>

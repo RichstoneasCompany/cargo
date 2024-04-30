@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{dispatcherForm.title}">Title</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+</head>
+<body>
+
+<header th:replace="~{fragments/sidebar :: sidebar}"></header>
+<div class="main-content container-fluid" layout:fragment="content">
+    <section class="section">
+
+        <form action="/dispatchers/save" method="post" th:object="${user}" onsubmit="return validarFormulario()"
+              class="row g-3">
+            <div class="col-md-6">
+                <label for="username" class="form-label" th:text="#{dispatcherForm.username}">Username:</label>
+                <input type="text" id="username" name="username" th:field="*{username}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="firstname" class="form-label" th:text="#{dispatcherForm.firstName}">First Name:</label>
+                <input type="text" id="firstname" name="firstname" th:field="*{firstname}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="lastname" class="form-label" th:text="#{dispatcherForm.lastName}">Last Name:</label>
+                <input type="text" id="lastname" name="lastname" th:field="*{lastname}" class="form-control">
+            </div>
+
+
+            <div class="col-md-6">
+                <label for="email" class="form-label" th:text="#{dispatcherForm.email}">Email:</label>
+                <input type="email" id="email" name="email" th:field="*{email}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="phone" class="form-label" th:text="#{dispatcherForm.phone}">Phone:</label>
+                <input type="text" id="phone" name="phone" th:field="*{phone}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="role" class="form-label" th:text="#{dispatcherForm.role}">Role:</label>
+                <select id="role" name="role" th:field="*{role}" class="form-select">
+                    <option value="DISPATCHER">DISPATCHER</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="password" class="form-label" th:text="#{dispatcherForm.password}">Password:</label>
+                <input type="password" id="password" name="password" th:field="*{password}" class="form-control">
+            </div>
+
+            <div class="col-12">
+                <button type="submit" value="Save" class="btn btn-success" th:text="#{dispatcherForm.save}">Save User</button>
+            </div>
+
+        </form>
+
+        <div class="col-12 mt-3">
+            <a th:href="@{/dispatchers}" class="btn btn-secondary" th:text="#{dispatcherForm.back}">Go back</a>
+        </div>
+    </section>
+</div>
+</body>
+
+</html>

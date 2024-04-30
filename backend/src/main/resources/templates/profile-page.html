@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+</head>
+<body>
+
+<header th:replace="fragments/header::header"></header>
+<div class="main-content container-fluid" layout:fragment="content">
+    <section class="section">
+
+        <img th:src="@{'data:image/png;base64,' + ${encodedImg}}" alt="User Image"
+             style="width: 100px; height: 100px; border-radius: 50%;"/>
+
+
+        <form id="uploadForm" action="/api/v1/images" method="post" enctype="multipart/form-data">
+            <div class="custom-file mb-4">
+                <input type="file" name="file" class="custom-file-input" id="customFile"
+                       accept="image/png, image/jpeg, image/jpg">
+            </div>
+            <button type="submit" class="btn btn-primary" th:text="#{profile.upload}">Загрузить</button>
+        </form>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var form = document.getElementById('uploadForm');
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    var formData = new FormData(form);
+                    fetch('/api/v1/images', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(function (response) {
+                            if (response.ok) {
+                                window.location.reload();
+                            } else {
+                                console.error('Произошла ошибка при отправке данных формы.');
+                            }
+                        })
+                        .catch(function (error) {
+                            console.error('Произошла ошибка:', error);
+                        });
+                });
+            });
+        </script>
+
+
+        <form action="/users/save" method="post" th:object="${user}" enctype="multipart/form-data" class="row g-3">
+            <input type="hidden" th:field="*{id}" class="form-control">
+
+
+            <div class="col-md-6">
+                <label for="username" class="form-label" th:text="#{profile.username}">Username:</label>
+                <input type="text" id="username" name="username" th:field="*{username}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="firstname" class="form-label" th:text="#{profile.firstName}">First Name:</label>
+                <input type="text" id="firstname" name="firstname" th:field="*{firstname}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="lastname" class="form-label" th:text="#{profile.lastName}">Last Name:</label>
+                <input type="text" id="lastname" name="lastname" th:field="*{lastname}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="email" class="form-label" th:text="#{profile.email}">Email:</label>
+                <input type="email" id="email" name="email" th:field="*{email}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="phone" class="form-label" th:text="#{profile.phone}">Phone:</label>
+                <input type="text" id="phone" name="phone" th:field="*{phone}" class="form-control">
+            </div>
+
+            <div class="col-12">
+                <button type="submit" value="Save" class="btn btn-success" th:text="#{profile.save}">Save</button>
+            </div>
+
+        </form>
+        <div class="col-12 mt-3">
+            <a th:href="@{/}" class="btn btn-secondary" th:text="#{profile.back}">Go back</a>
+        </div>
+    </section>
+</div>
+</body>
+
+</html>

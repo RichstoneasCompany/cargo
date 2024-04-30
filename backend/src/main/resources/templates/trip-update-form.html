@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{tripUpdateForm.title}">Title</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+</head>
+<body>
+
+<header th:replace="fragments/header::header"></header>
+<div class="main-content container-fluid" layout:fragment="content">
+    <section class="section">
+
+        <form action="/trips/update" method="post" th:object="${trip}" class="row g-3">
+            <input type="hidden" th:field="*{id}" class="form-control">
+            <input type="hidden" name="route" th:value="${trip.route != null ? trip.route.id : ''}">
+            <input type="hidden" name="oldDepartureTime" th:value="${trip.departureTime}">
+            <input type="hidden" name="oldArrivalTime" th:value="${trip.arrivalTime}">
+            <input type="hidden" name="assignedDriver"
+                   th:value="${trip.assignedDriver != null ? trip.assignedDriver : ''}">
+            <input type="hidden" name="tripStatus" th:value="${trip.tripStatus}">
+
+            <div class="col-md-6">
+                <label for="routes" class="form-label">Routes:</label>
+                <select id="routes" name="routeId" class="form-select">
+                    <option th:each="route : ${routes}"
+                            th:value="${route.id}"
+                            th:text="${route.name}"
+                            th:selected="${trip.route != null and trip.route.id == route.id}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="departureTime" class="form-label" th:text="#{tripUpdateForm.departureTime}">Departure time</label>
+                <input type="datetime-local" id="departureTime" name="departureTime" th:value="${trip.departureTime}"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="arrivalTime" class="form-label" th:text="#{tripUpdateForm.arrivalTime}">Arrival Time:</label>
+                <input type="datetime-local" id="arrivalTime" name="arrivalTime" th:value="${trip.arrivalTime}"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="drivers" class="form-label" th:text="#{tripUpdateForm.driver}">Drivers:</label>
+                <select id="drivers" name="assignedDriver" class="form-select">
+                    <option th:each="driver : ${drivers}"
+                            th:value="${driver.id}"
+                            th:text="${driver.getUser().firstname} + ' ' + ${driver.getUser().lastname}"
+                            th:selected="${trip.assignedDriver != null and trip.assignedDriver.id == driver.id}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="tripStatus" class="form-label" th:text="#{tripUpdateForm.tripStatus}">Trip Status:</label>
+                <select id="tripStatus" name="tripStatus" class="form-select">
+                    <option th:each="status : ${T(com.richstone.cargo.model.types.TripStatus).values()}"
+                            th:value="${status}"
+                            th:text="${status}"
+                            th:selected="${trip.tripStatus == status}">
+                    </option>
+                </select>
+            </div>
+
+
+            <div class="col-12">
+                <button type="submit" value="Save" class="btn btn-success" th:text="#{tripUpdateForm.save}">Save</button>
+            </div>
+        </form>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var form = document.querySelector("form");
+
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault();
+
+                    var newDepartureTime = document.getElementById("departureTime").value;
+                    var newArrivalTime = document.getElementById("arrivalTime").value;
+                    var newRouteId = document.getElementById("routes").value;
+                    var newAssignedDriverId = document.getElementById("drivers").value;
+                    var newTripStatus = document.getElementById("tripStatus").value;
+
+                    document.querySelector("input[name=oldDepartureTime]").value = newDepartureTime;
+                    document.querySelector("input[name=oldArrivalTime]").value = newArrivalTime;
+                    document.querySelector("input[name=route]").value = newRouteId;
+                    document.querySelector("input[name=assignedDriver]").value = newAssignedDriverId;
+                    document.querySelector("input[name=tripStatus]").value = newTripStatus;
+
+                    form.submit();
+                });
+            });
+        </script>
+
+
+        <div class="col-12 mt-3">
+            <a th:href="@{/trips}" class="btn btn-secondary" th:text="#{tripUpdateForm.back}">Go back</a>
+        </div>
+    </section>
+</div>
+</body>
+
+
+</html>

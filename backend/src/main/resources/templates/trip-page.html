@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{tripPage.title}">Trips </title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="main-content container-fluid" layout:fragment="content">
+
+    <section class="section">
+        <div class="container mt-3">
+            <h3>Trips</h3>
+            <a th:href="@{/trips/formForAddTrip}" class="btn btn-primary mb-2"
+               sec:authorize="hasAnyRole('ADMIN', 'DISPATCHER')" th:text="#{tripPage.add}">Add trip</a>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th >Id</th>
+                    <th th:text="#{tripPage.route}">Route</th>
+                    <th th:text="#{tripPage.departureTime}">Departure Time</th>
+                    <th th:text="#{tripPage.arrivalTime}">Arrival Time</th>
+                    <th th:text="#{tripPage.tripStatus}">Trip Status</th>
+                    <th th:text="#{tripPage.driver}">Assigned Driver</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="trip : ${trips}">
+                    <td>
+                        <a th:href="@{/trips/details/{id}(id=${trip.id})}" th:text="${trip.id}">Details</a>
+                    </td>
+                    <td th:text="${trip.route.name}"></td>
+                    <td th:text="${trip.departureTime}"></td>
+                    <td th:text="${trip.arrivalTime}"></td>
+                    <td th:text="${trip.tripStatus}"></td>
+                    <td th:text="${trip.assignedDriver != null ? (trip.assignedDriver.getUser().firstname + ' ' + trip.assignedDriver.getUser().lastname) : 'N/A'}"></td>
+
+                    <td sec:authorize="hasAnyRole('ADMIN', 'DISPATCHER')">
+                        <a th:href="@{/trips/formForUpdateTrip(id=${trip.id})}" class="btn btn-warning btn-sm" th:text="#{tripPage.edit}">Edit</a>
+                    </td>
+                    <td sec:authorize="hasRole('ADMIN')">
+                        <form th:action="@{/trips/delete(id=${trip.id})}" method="post">
+                            <button type="submit" class="btn btn-danger btn-sm" style="margin-top: 5px;">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </section>
+</div>
+</body>
+</html>

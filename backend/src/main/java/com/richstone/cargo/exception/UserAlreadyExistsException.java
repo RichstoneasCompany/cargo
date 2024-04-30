@@ -1,0 +1,7 @@
+package com.richstone.cargo.exception;
+
+public class UserAlreadyExistsException extends RuntimeException {
+    public UserAlreadyExistsException(String message) {
+        super(message);
+    }
+}

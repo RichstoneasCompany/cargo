@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{routesForm.title}">Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="main-content container-fluid" layout:fragment="content">
+    <div class="page-title">
+    </div>
+    <section class="section">
+
+        <form action="/routes/save" method="post">
+            <div class="col-md-6">
+                <label for="name" th:text="#{routesForm.name}">Name:</label><br>
+                <input type="text" id="name" name="name"><br>
+            </div>
+            <div class="col-md-6" >
+                <label for="startLocationId" th:text="#{routesForm.startLocation}">Start Location:</label><br>
+                <select id="startLocationId" name="startLocationId">
+                    <option value="">Select Start Location</option>
+                    <th:block th:each="location : ${locations}">
+                        <option th:value="${location.id}" th:text="${location.name}"></option>
+                    </th:block>
+                </select><br>
+            </div>
+            <div class="col-md-6">
+                <label for="endLocationId" th:text="#{routesForm.endLocation}">End Location:</label><br>
+                <select id="endLocationId" name="endLocationId">
+                    <option value="">Select End Location</option>
+                    <th:block th:each="location : ${locations}">
+                        <option th:value="${location.id}" th:text="${location.name}"></option>
+                    </th:block>
+                </select><br>
+            </div>
+            <div class="col-12">
+                <button type="submit" value="Save" class="btn btn-success" th:text="#{routesForm.save}">Save Location</button>
+            </div>
+        </form>
+
+    </section>
+</div>
+</body>
+</html>

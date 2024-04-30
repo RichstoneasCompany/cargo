@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>Questions and Answers</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" th:href="@{css/home.css}">
+    <style>
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .table {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 >List of questions</h2>
+    <div class="button">
+        <a th:href="@{/topics}">
+            <button class="btn btn-secondary">Go back</button>
+        </a>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Question</th>
+            <th>Answer</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="question : ${questions}">
+            <td th:text="${topicId}"></td>
+            <td th:text="${question.question}"></td>
+            <td th:text="${question.answer}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Add a Question</h2>
+    <form action="/topics/addQuestion" method="post" th:object="${question}">
+        <input type="hidden" id="topicId" name="topicId" th:value="${topicId}"/>
+        <div class="form-group">
+            <label for="question">Question:</label>
+            <input type="text" class="form-control" id="question" name="question" th:field="*{question}" required>
+        </div>
+        <div class="form-group">
+            <label for="answer">Answer:</label>
+            <input type="text" class="form-control" id="answer" name="answer" th:field="*{answer}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+
+</div>
+</body>
+</html>

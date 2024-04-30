@@ -1,0 +1,21 @@
+package com.richstone.cargo.controllers.web;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+@CrossOrigin("*")
+public class LoginController {
+
+    @GetMapping("/login")
+    public String showLoginPage() {
+        return "login-page";
+    }
+
+    @GetMapping("/logout")
+    public String logout() {
+        return "landing-page";
+    }
+}
+

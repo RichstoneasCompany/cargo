@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="main-content container-fluid" layout:fragment="content">
+    <div class="page-title">
+        <h3 th:text="#{driverList.title}"></h3>
+    </div>
+    <section class="section">
+
+        <div class="container mt-3">
+            <a th:href="@{/drivers/formForAddDriver}" class="btn btn-primary mb-2" sec:authorize="hasAnyRole('ADMIN')"
+               th:text="#{driverList.add}" >Add driver</a>
+
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th th:text="#{driverList.username}">Username</th>
+                    <th th:text="#{driverList.firstname}" >First Name</th>
+                    <th th:text="#{driverList.lastname}" >Last Name</th>
+                    <th th:text="#{driverList.email}" >Email</th>
+                    <th th:text="#{driverList.phone}" >Phone</th>
+                    <th th:text="#{driverList.role}" >Role</th>
+                    <th th:text="#{driverList.isActive}" >Is Active</th>
+                    <th th:text="#{driverList.gender}">Gender</th>
+                    <th th:text="#{driverList.birthDate}">Birth Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${drivers}">
+                    <td>
+                        <a th:href="@{/drivers/details/{id}(id=${user.id})}" th:text="${user.username}" ></a>
+                    </td>
+                    <td th:text="${user.firstname}"></td>
+                    <td th:text="${user.lastname}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td th:text="${user.phone}"></td>
+                    <td th:text="${user.role}"></td>
+                    <td th:text="${user.isEnabled}"></td>
+                    <td th:text="${user.gender}"></td>
+                    <td th:text="${user.birthDate}"></td>
+                    <td sec:authorize="hasAnyRole('ADMIN', 'DISPATCHER')">
+                        <a th:href="@{/drivers/formForUpdateDriver(id=${user.id})}"
+                           class="btn btn-warning btn-sm" th:text="#{inactiveDrivers.edit}" >Edit</a>
+                    </td>
+                    <td sec:authorize="hasRole('ADMIN')">
+                        <form th:action="@{/drivers/delete(userId=${user.id})}" method="post">
+                            <button type="submit" class="btn btn-danger btn-sm" style="margin-top: 5px;" th:text="#{driverList.remove}">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+</body>
+</html>

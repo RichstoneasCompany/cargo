@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="main-content container-fluid" layout:fragment="content">
+    <div class="page-title">
+        <h3 th:text="#{dispatchersList.title}" >List of dispatchers</h3>
+    </div>
+    <section class="section">
+
+        <div class="container mt-3">
+            <a th:href="@{/dispatchers/formForAddDispatcher}" class="btn btn-primary mb-2"
+               sec:authorize="hasAnyRole('ADMIN')" th:text="#{dispatchersList.add}" >Add dispatcher</a>
+
+
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th th:text="#{dispatchersList.id}" >ID</th>
+                    <th th:text="#{dispatchersList.username}" >Username</th>
+                    <th th:text="#{dispatchersList.firstName}" >First Name</th>
+                    <th th:text="#{dispatchersList.lastName}" >Last Name</th>
+                    <th th:text="#{dispatchersList.email}" >Email</th>
+                    <th th:text="#{dispatchersList.phone}" >Phone</th>
+                    <th th:text="#{dispatchersList.role}" >Role</th>
+                    <th th:text="#{dispatchersList.isActive}" >Is Active</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${dispatchers}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.username}"></td>
+                    <td th:text="${user.firstname}"></td>
+                    <td th:text="${user.lastname}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td th:text="${user.phone}"></td>
+                    <td th:text="${user.role}"></td>
+                    <td th:text="${user.isEnabled}"></td>
+                    <td sec:authorize="hasRole('ADMIN')">
+                        <form th:action="@{/dispatchers/delete(userId=${user.id})}" method="post">
+                            <button type="submit" class="btn btn-danger btn-sm" style="margin-top: 5px;" th:text="#{dispatchersList.remove}">Remove</button>
+                        </form>
+                    </td>
+                    <td sec:authorize="hasAnyRole('ADMIN')">
+                        <a th:href="@{/dispatchers/formForUpdateDispatcher(id=${user.id})}"
+                           class="btn btn-warning btn-sm" th:text="#{inactiveDrivers.edit}" >Edit</a>
+                    </td>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+</body>
+</html>

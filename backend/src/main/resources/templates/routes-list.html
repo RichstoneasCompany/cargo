@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{topicForm.back}">Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="main-content container-fluid" layout:fragment="content">
+    <div class="page-title">
+        <h3 th:text="#{routesList.title}">Routes</h3>
+    </div>
+    <section class="section">
+
+        <div class="container mt-3">
+            <a th:href="@{/routes/add}" class="btn btn-primary mb-2"
+               sec:authorize="hasAnyRole('ADMIN', 'DISPATCHER')" th:text="#{routesList.add}">Add route</a>
+
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th th:text="#{routesList.id}">ID</th>
+                    <th th:text="#{routesList.name}">Name</th>
+                    <th th:text="#{routesList.startLocation}">Start Location</th>
+                    <th th:text="#{routesList.endLocation}">End Location</th>
+                    <th th:text="#{routesList.action}">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="route : ${routes}">
+                    <td th:text="${route.id}"></td>
+                    <td th:text="${route.name}"></td>
+                    <td th:text="${route.startLocationId.name}"></td>
+                    <td th:text="${route.endLocationId.name}"></td>
+                    <td>
+                        <form th:action="@{/routes/delete(routeId=${route.id})}" method="post">
+                            <button type="submit" class="btn btn-danger btn-sm" th:text="#{routesList.remove}">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </section>
+</div>
+</body>
+</html>

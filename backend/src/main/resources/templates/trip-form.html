@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{tripForm.title}">Title</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+</head>
+<body>
+
+<header th:replace="fragments/header::header"></header>
+<div class="main-content container-fluid" layout:fragment="content">
+    <section class="section">
+
+        <form action="/trips/save" method="post" th:object="${trip}" class="row g-3">
+            <div class="col-md-6">
+                <label for="routes" class="form-label" th:text="#{tripForm.routes}">Routes:</label>
+                <select id="routes" name="routeId" class="form-select">
+                    <option th:each="route : ${routes}" th:value="${route.id}" th:text="${route.name}"></option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="departureTime" class="form-label" th:text="#{tripForm.departureTime}">Departure time</label>
+                <input type="datetime-local" id="departureTime" name="departureTime" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="arrivalTime" class="form-label" th:text="#{tripForm.arrivalTime}">Arrival Time:</label>
+                <input type="datetime-local" id="arrivalTime" name="arrivalTime" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="assignedDriver" class="form-label" th:text="#{tripForm.driver}">Driver:</label>
+                <select id="assignedDriver" name="assignedDriverId" class="form-select">
+                    <option value="">Select Driver</option>
+                    <option th:each="driver : ${drivers}" th:value="${driver.id}"
+                            th:text="${driver.firstname + ' ' + driver.lastname}"></option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="cargoName" class="form-label" >Name:</label>
+                <input type="text" id="cargoName" name="cargoName" th:field="*{cargoName}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="cargoDescription" class="form-label" >Cargo description:</label>
+                <input type="text" id="cargoDescription" name="cargoDescription" th:field="*{cargoDescription}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="cargoWeight" class="form-label" >Cargo weight:</label>
+                <input type="text" id="cargoWeight" name="cargoWeight" th:field="*{cargoWeight}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="numberOfPallets" class="form-label" >Number of pallets:</label>
+                <input type="number" id="numberOfPallets" name="numberOfPallets" th:field="*{numberOfPallets}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="temperature" class="form-label" >Temperature:</label>
+                <input type="number" id="temperature" name="temperature" th:field="*{temperature}" class="form-control">
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-success" th:text="#{tripForm.save}">Save</button>
+            </div>
+        </form>
+
+        <div class="col-12 mt-3">
+            <a th:href="@{/trips}" class="btn btn-secondary" th:text="#{tripForm.back}">Go back</a>
+        </div>
+    </section>
+</div>
+</body>
+
+</html>
