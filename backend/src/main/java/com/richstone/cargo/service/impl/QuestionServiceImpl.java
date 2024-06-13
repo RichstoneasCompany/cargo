@@ -38,4 +38,20 @@ public class QuestionServiceImpl implements QuestionService {
                 .toList();
     }
 
+    public Question getQuestion(Long id) {
+        Question question = questionRepository.getQuestionById(id).orElseThrow(() -> {
+            log.error("Question not found with this id: {}", id);
+            return new QuestionNotFoundException("Question id is not valid", new QuestionNotFoundException());
+        });
+        log.info("Question found with id: {}", id);
+        return question;
+    }
+
+    public void delete(Long id) {
+        log.info("Deleting question: {}", id);
+        Question question = getQuestion(id);
+        questionRepository.delete(question);
+        log.info("Question deleted successfully: {}", id);
+    }
+
 }

@@ -25,4 +25,16 @@ public class Cargo {
     @OneToOne
     @JoinColumn(name = "trip_id")
     private Trip trip;
+
+    @Override
+    public String toString() {
+        return "Cargo{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", weight=" + weight +
+                ", name='" + name + '\'' +
+                ", numberOfPallets=" + numberOfPallets +
+                ", temperature=" + temperature +
+                '}';
+    }
 }

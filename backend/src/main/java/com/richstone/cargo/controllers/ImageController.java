@@ -42,4 +42,12 @@ public class ImageController {
         Image userImage = imageService.getImageToUser(user);
         return new ResponseEntity<>(userImage, HttpStatus.OK);
     }
+
+    @PostMapping("/driver/{userId}")
+    @Operation(summary = "Загрузка изображения водителя",
+            description = "Позволяет загрузить изображение водителя")
+    public ResponseEntity<String> uploadImageToDriver(@RequestParam("file") MultipartFile file, @PathVariable("userId") Long userId) throws IOException {
+        imageService.uploadImageToDriver(file, userId);
+        return ResponseEntity.ok().body("Image Uploaded Successfully");
+    }
 }

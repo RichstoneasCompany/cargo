@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <title th:text="#{driverForm.title}" >Title</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <style>
+        .saveButton{
+            position: relative;
+            left:1000px;
+
+        }
+    </style>
 
 </head>
 <body>
@@ -48,14 +55,15 @@
                     <option value="DISPATCHER">DISPATCHER</option>
                 </select>
             </div>
-
+            <div class="saveButton">
             <div class="col-12">
                 <button type="submit" value="Save" class="btn btn-success" th:text="#{driverForm.save}">Save User</button>
             </div>
-
+            </div>
         </form>
+
         <div class="col-12 mt-3">
-            <a th:href="@{/dispatchers}" class="btn btn-secondary" th:text="#{driverForm.back}">Go back</a>
+            <a th:href="@{/dispatchers/1}" class="btn btn-secondary" style="position: relative; bottom:52px;" th:text="#{driverForm.back}">Go back</a>
         </div>
     </section>
 </div>

@@ -3,11 +3,25 @@
       layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{topicForm.back}">Title</title>
+    <title th:text="#{routesList.title}">Title</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination-container div {
+            margin: 0 5px;
+        }
+    </style>
 </head>
 <body>
 <div class="main-content container-fluid" layout:fragment="content">
@@ -17,7 +31,7 @@
     <section class="section">
 
         <div class="container mt-3">
-            <a th:href="@{/routes/add}" class="btn btn-primary mb-2"
+            <a th:href="@{/routes/add}" class="btn custom-btn"
                sec:authorize="hasAnyRole('ADMIN', 'DISPATCHER')" th:text="#{routesList.add}">Add route</a>
 
             <table class="table table-bordered">
@@ -38,15 +52,40 @@
                     <td th:text="${route.endLocationId.name}"></td>
                     <td>
                         <form th:action="@{/routes/delete(routeId=${route.id})}" method="post">
-                            <button type="submit" class="btn btn-danger btn-sm" th:text="#{routesList.remove}">Remove</button>
+                            <button type="submit" class="btn custom-btn" th:text="#{routesList.remove}">Remove</button>
                         </form>
                     </td>
                 </tr>
                 </tbody>
             </table>
-
+            <style>
+                .custom-btn {
+                    background-color: #071438;
+                    color: #fff;
+                }
+                .custom-btn:hover {
+                    background-color: rgba(56, 73, 148, 0.71);
+                    color: white;
+                }
+            </style>
         </div>
     </section>
+    <div th:if="${totalPages > 1}" class="pagination-container">
+        <div>
+                    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                        <a th:if="${currentPage != i}" th:href="@{'/routes/' + ${i}}">[[${i}]]</a>
+                        <span th:unless="${currentPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+                    </span>
+        </div>
+        <div>
+            <a th:text="#{button.next}" th:if="${currentPage < totalPages}" th:href="@{'/routes/' + ${currentPage + 1}}">Next</a>
+            <span th:text="#{button.next}" th:unless="${currentPage < totalPages}">Next</span>
+        </div>
+        <div>
+            <a th:text="#{button.last}" th:if="${currentPage < totalPages}" th:href="@{'/routes/' + ${totalPages}}">Last</a>
+            <span th:text="#{button.last}" th:unless="${currentPage < totalPages}">Last</span>
+        </div>
+    </div>
 </div>
 </body>
 </html>

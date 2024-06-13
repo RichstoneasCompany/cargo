@@ -5,6 +5,19 @@
     <meta charset="UTF-8">
     <title th:text="#{dispatcherForm.title}">Title</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <style>
+        .custom-select-width {
+            width: auto;
+            min-width: 150px;
+            max-width: 200px;
+        }
+        .saveButton{
+            position: relative;
+            left:1000px;
+
+        }
+
+    </style>
 </head>
 <body>
 
@@ -42,7 +55,7 @@
 
             <div class="col-md-6">
                 <label for="role" class="form-label" th:text="#{dispatcherForm.role}">Role:</label>
-                <select id="role" name="role" th:field="*{role}" class="form-select">
+                <select id="role" name="role" th:field="*{role}" class="form-select custom-select-width">
                     <option value="DISPATCHER">DISPATCHER</option>
                 </select>
             </div>
@@ -51,16 +64,18 @@
                 <label for="password" class="form-label" th:text="#{dispatcherForm.password}">Password:</label>
                 <input type="password" id="password" name="password" th:field="*{password}" class="form-control">
             </div>
-
+            <div class="saveButton">
             <div class="col-12">
                 <button type="submit" value="Save" class="btn btn-success" th:text="#{dispatcherForm.save}">Save User</button>
+            </div>
             </div>
 
         </form>
 
         <div class="col-12 mt-3">
-            <a th:href="@{/dispatchers}" class="btn btn-secondary" th:text="#{dispatcherForm.back}">Go back</a>
+            <a th:href="@{/dispatchers/1}" class="btn btn-secondary" style="position: relative; bottom:52px;" th:text="#{dispatcherForm.back}">Go back</a>
         </div>
+
     </section>
 </div>
 </body>

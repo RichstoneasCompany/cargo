@@ -5,74 +5,154 @@
     <meta charset="UTF-8">
     <title th:text="#{driverForm.title}">Title</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <style>
+        .custom-select-width {
+            width: auto;
+            min-width: 150px;
+            max-width: 200px;
+        }
+        .saveButton{
+            position: relative;
+            left:1000px;
+
+        }
+    </style>
 </head>
 <body>
 
 <header th:replace="~{fragments/sidebar :: sidebar}"></header>
 <div class="main-content container-fluid" layout:fragment="content">
     <section class="section">
+        <img th:src="@{'data:image/png;base64,' + ${driverImage}}" alt="User Image"
+             style="width: 100px; height: 100px; border-radius: 50%;"/>
 
-        <form action="/drivers/save" method="post" th:object="${user}"
+
+        <form id="uploadForm" action="/api/v1/images/driver" method="post" enctype="multipart/form-data">
+            <input type="hidden" id="userId" th:value="${driverUpdateDto.user.id}">
+            <div class="custom-file mb-4">
+                <input type="file" name="file" class="custom-file-input" id="customFile" accept="image/png, image/jpeg, image/jpg">
+            </div>
+            <button type="submit" class="btn btn-primary" th:text="#{profile.upload}">Загрузить</button>
+        </form>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var form = document.getElementById('uploadForm');
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    var userId = document.getElementById('userId').value;
+
+                    form.action = '/api/v1/images/driver/' + userId;
+
+                    var formData = new FormData(form);
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(function (response) {
+                            if (response.ok) {
+                                window.location.reload();
+                            } else {
+                                console.error('Произошла ошибка при отправке данных формы.');
+                            }
+                        })
+                        .catch(function (error) {
+                            console.error('Произошла ошибка:', error);
+                        });
+                });
+            });
+        </script>
+
+        <form action="/drivers/update" method="post" th:object="${driverUpdateDto}"
               class="row g-3">
-            <input type="hidden" th:field="*{id}" class="form-control">
+            <input type="hidden" th:field="*{user.id}" class="form-control">
 
             <div class="col-md-6">
                 <label for="username" class="form-label" th:text="#{driverForm.username}">Username:</label>
-                <input type="text" id="username" name="username" th:field="*{username}" class="form-control">
+                <input type="text" id="username" name="username" th:field="*{user.username}" class="form-control">
             </div>
 
             <div class="col-md-6">
                 <label for="firstname" class="form-label" th:text="#{driverForm.firstName}">First Name:</label>
-                <input type="text" id="firstname" name="firstname" th:field="*{firstname}" class="form-control">
+                <input type="text" id="firstname" name="firstname" th:field="*{user.firstname}" class="form-control">
             </div>
 
             <div class="col-md-6">
                 <label for="lastname" class="form-label" th:text="#{driverForm.lastName}">Last Name:</label>
-                <input type="text" id="lastname" name="lastname" th:field="*{lastname}" class="form-control">
+                <input type="text" id="lastname" name="lastname" th:field="*{user.lastname}" class="form-control">
             </div>
             <div class="col-md-6">
                 <label for="birthdate" class="form-label" th:text="#{driverForm.birthdate}">Birth Date:</label>
-                <input type="text" id="birthdate" name="birthdate" th:field="*{birthDate}" class="form-control">
+                <input type="date" id="birthdate" name="birthdate" th:value="*{user.birthDate}" class="form-control"
+                       th:field="*{user.birthDate}">
             </div>
             <div class="col-md-6">
+                <label for="email" class="form-label" th:text="#{driverForm.email}">Email:</label>
+                <input type="email" id="email" name="email" th:field="*{user.email}" class="form-control">
+            </div>
+
+            <div class="col-md-6">
                 <label for="role" class="form-label" th:text="#{driverForm.gender}">Gender:</label>
-                <select id="gender" name="gender" th:field="*{gender}" class="form-select">
+                <select id="gender" name="gender" th:field="*{user.gender}" class="form-select custom-select-width">
                     <option value="MALE">Male</option>
                     <option value="FEMALE">Female</option>
                     <option value="OTHER">Other</option>
                 </select>
             </div>
-            <div class="col-md-6">
-                <label for="email" class="form-label" th:text="#{driverForm.email}">Email:</label>
-                <input type="email" id="email" name="email" th:field="*{email}" class="form-control">
-            </div>
 
             <div class="col-md-6">
                 <label for="phone" class="form-label" th:text="#{driverForm.phone}">Phone:</label>
-                <input type="text" id="phone" name="phone" th:field="*{phone}" class="form-control">
+                <input type="text" id="phone" name="phone" th:field="*{user.phone}" class="form-control">
             </div>
 
             <div class="col-md-6">
                 <label for="role" class="form-label" th:text="#{driverForm.role}">Role:</label>
-                <select id="role" name="role" th:field="*{role}" class="form-select">
+                <select id="role" name="role" th:field="*{user.role}" class="form-select custom-select-width">
                     <option value="DRIVER">DRIVER</option>
                 </select>
             </div>
 
             <div class="col-md-6">
-                <label for="isEnabled" class="form-check-label" th:text="#{driverForm.isEnabled}">Enabled:</label>
-                <input type="checkbox" id="isEnabled" name="isEnabled" th:field="*{isEnabled}" class="form-check-input">
+                <label for="licenceNumber" class="form-label" th:text="#{driverForm.licenceNumber}">Licence
+                    number:</label>
+                <input type="text" id="licenceNumber" name="licenceNumber" th:field="*{driver.licenseNumber}"
+                       class="form-control">
             </div>
 
+            <div class="col-md-6">
+                <label for="model" class="form-label" th:text="#{driverForm.model}">Truck model:</label>
+                <input type="text" id="model" name="model" th:field="*{truck.model}" class="form-control">
+            </div>
 
-            <div class="col-12">
-                <button type="submit" value="Save" class="btn btn-success" th:text="#{driverForm.save}">Save User
-                </button>
+            <div class="col-md-6">
+                <label for="numberPlate" class="form-label" th:text="#{driverForm.numberPlate}">Number plate:</label>
+                <input type="text" id="numberPlate" name="numberPlate" th:field="*{truck.numberPlate}"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label for="maxPermMass" class="form-label" th:text="#{driverForm.maxPermMass}">:</label>
+                <input type="text" id="maxPermMass" name="maxPermMass" th:field="*{truck.maxPermMass}"
+                       class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="isEnabled" class="form-check-label" th:text="#{driverForm.isEnabled}">Enabled:</label>
+                <input type="checkbox" id="isEnabled" name="isEnabled" th:field="*{user.enabled}"
+                       class="form-check-input">
+            </div>
+
+            <div class="saveButton">
+                <div class="col-12">
+                    <button type="submit" value="Save" class="btn btn-success" style=" border-radius: 55px; width: 120px; height:36px;" th:text="#{driverForm.save}">Save User
+                    </button>
+                </div>
             </div>
 
         </form>
+
         <div class="col-12 mt-3">
-            <a th:href="@{/drivers}" class="btn btn-secondary" th:text="#{driverForm.back}">Go back</a>
+            <a th:href="@{/drivers/1}" class="btn btn-secondary" style=" position: relative; bottom:52px; border-radius: 55px; width: 120px; height:36px;" th:text="#{driverForm.back}">Go back</a>
+
         </div>
     </section>
 </div>

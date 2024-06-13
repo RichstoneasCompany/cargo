@@ -5,6 +5,44 @@
     <meta charset="UTF-8">
     <title th:text="#{newDriverForm.title}">Title</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <style>
+        .btn-custom-file {
+            display: inline-block;
+            background-color: #071438;
+            color: #fff;
+            border: 1px solid #071438;
+            border-radius: 54px;
+            padding: 4px 15px;
+            cursor: pointer;
+            text-align: center;
+            position: absolute;
+            top: 165px;
+            left: 400px;
+        }
+
+        .btn-custom-file:hover {
+            background-color: #0a1b4b;
+        }
+
+        .custom-select-width {
+            width: auto;
+            min-width: 150px;
+            max-width: 200px;
+        }
+
+        .img-preview {
+            margin-top: 10px;
+            max-width: 100px;
+            max-height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 55px;
+        }
+
+        .saveButton {
+            position: relative;
+            left: 1000px;
+        }
+    </style>
 </head>
 <body>
 
@@ -12,8 +50,43 @@
 <div class="main-content container-fluid" layout:fragment="content">
     <section class="section">
 
-        <form action="/drivers/add" method="post" th:object="${driverForm}" onsubmit="return validarFormulario()"
-              class="row g-3">
+        <form action="/drivers/add" method="post" enctype="multipart/form-data" th:object="${driverForm}"
+              onsubmit="return validateForm()" class="row g-3">
+            <div class="custom-file mb-4">
+                <h3 th:text="#{newDriverForm.profilePhotoTitle}">Фото профиля</h3>
+                <img id="previewImage" class="img-preview" src="/images/default.png" alt="">
+                <script>
+                    var loadFile = function (event) {
+                        var output = document.getElementById('previewImage');
+                        output.src = URL.createObjectURL(event.target.files[0]);
+                        output.onload = function () {
+                            URL.revokeObjectURL(output.src)
+                        }
+                        output.style.display = 'block';
+                    };
+
+                    function validateForm() {
+                        var inputs = document.getElementsByTagName('input');
+                        for (var i = 0; i < inputs.length; i++) {
+                            if (inputs[i].type === 'text' && inputs[i].value.trim() === '') {
+                                alert("Пожалуйста, заполните все поля.");
+                                return false;
+                            }
+                        }
+
+                        var fileInput = document.getElementById('fileInput');
+                        if (fileInput.files.length === 0) {
+                            alert("Пожалуйста, выберите фотографию водителя.");
+                            return false;
+                        }
+                        return true;
+                    }
+                </script>
+                <input type="file" name="file" class="custom-file-input" id="fileInput"
+                       accept="image/png, image/jpeg, image/jpg" style="display: none;" onchange="loadFile(event)">
+                <label for="fileInput" class="btn btn-custom-file">Выберите файл</label>
+            </div>
+
             <div class="col-md-6">
                 <label for="username" class="form-label" th:text="#{newDriverForm.username}">Username:</label>
                 <input type="text" id="username" name="username" th:field="*{user.username}" class="form-control">
@@ -28,18 +101,12 @@
                 <label for="lastname" class="form-label" th:text="#{newDriverForm.lastName}">Last Name:</label>
                 <input type="text" id="lastname" name="lastname" th:field="*{user.lastname}" class="form-control">
             </div>
+
             <div class="col-md-6">
                 <label for="birthdate" class="form-label" th:text="#{driverForm.birthdate}">Birth Date:</label>
                 <input type="date" id="birthdate" name="birthdate" th:field="*{user.birthDate}" class="form-control">
             </div>
-            <div class="col-md-6">
-                <label for="role" class="form-label" th:text="#{driverForm.gender}" >Gender:</label>
-                <select id="gender" name="gender" th:field="*{user.gender}" class="form-select">
-                    <option value="MALE">Male</option>
-                    <option value="FEMALE">Female</option>
-                    <option value="OTHER">Other</option>
-                </select>
-            </div>
+
             <div class="col-md-6">
                 <label for="email" class="form-label" th:text="#{newDriverForm.email}">Email:</label>
                 <input type="email" id="email" name="email" th:field="*{user.email}" class="form-control">
@@ -51,15 +118,21 @@
             </div>
 
             <div class="col-md-6">
-                <label for="password" class="form-label" th:text="#{newDriverForm.password}">Phone:</label>
-                <input type="text" id="password" name="password" th:field="*{user.password}" class="form-control">
+                <label for="licenseNumber" class="form-label">License Number:</label>
+                <input type="text" id="licenseNumber" name="licenseNumber" th:field="*{licenseNumber}"
+                       class="form-control">
             </div>
+
             <div class="col-md-6">
-                <label for="licenseNumber" class="form-label" >License Number:</label>
-                <input type="text" id="licenseNumber" name="licenseNumber" th:field="*{licenseNumber}" class="form-control">
+                <label for="gender" class="form-label" th:text="#{driverForm.gender}">Gender:</label>
+                <select id="gender" name="gender" th:field="*{user.gender}" class="form-select custom-select-width">
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                </select>
             </div>
 
-
+            <h3 th:text="#{newDriverForm.truckInfoTitle}"></h3>
 
             <div class="col-md-6">
                 <label for="truckModel" class="form-label">Truck Model:</label>
@@ -68,54 +141,62 @@
             </div>
 
             <div class="col-md-6">
-                <label for="numberPlate" class="form-label" >Number Plate:</label>
+                <label for="numberPlate" class="form-label">Number Plate:</label>
                 <input type="text" id="numberPlate" name="numberPlate" th:field="*{truck.numberPlate}"
                        class="form-control">
             </div>
 
             <div class="col-md-6">
-                <label for="maxPermMass" class="form-label" >Max Permissible
-                    Mass:</label>
-                <input type="text" id="maxPermMass" name="maxPermMass" th:field="*{truck.maxPermMass}"
-                       class="form-control">
-            </div>
-            <div class="col-md-6">
-                <label for="mass" class="form-label" >Mass:</label>
-                <input type="text" id="mass" name="mass" th:field="*{truck.mass}" class="form-control">
-            </div>
-
-            <div class="col-md-6">
-                <label for="axleLoad" class="form-label" >Axle Load:</label>
-                <input type="text" id="axleLoad" name="axleLoad" th:field="*{truck.axleLoad}"
+                <label for="maxPermMass" class="form-label">Max Permissible Mass:</label>
+                <input type="number" id="maxPermMass" name="maxPermMass" th:field="*{truck.maxPermMass}"
                        class="form-control">
             </div>
 
             <div class="col-md-6">
-                <label for="height" class="form-label" >Height:</label>
-                <input type="text" id="height" name="height" th:field="*{truck.height}" class="form-control">
+                <label for="mass" class="form-label">Mass:</label>
+                <input type="number" id="mass" name="mass" th:field="*{truck.mass}" class="form-control">
             </div>
 
             <div class="col-md-6">
-                <label for="width" class="form-label" >Width:</label>
-                <input type="text" id="width" name="width" th:field="*{truck.width}" class="form-control">
+                <label for="axleLoad" class="form-label">Axle Load:</label>
+                <input type="number" id="axleLoad" name="axleLoad" th:field="*{truck.axleLoad}"
+                       class="form-control">
             </div>
 
             <div class="col-md-6">
-                <label for="length" class="form-label" >Length:</label>
-                <input type="text" id="length" name="length" th:field="*{truck.length}" class="form-control">
+                <label for="height" class="form-label">Height:</label>
+                <input type="number" id="height" name="height" th:field="*{truck.height}" class="form-control">
             </div>
 
-            <div class="col-12">
-                <button type="submit" value="Save" class="btn btn-success" th:text="#{newDriverForm.save}">Save User</button>
+            <div class="col-md-6">
+                <label for="width" class="form-label">Width:</label>
+                <input type="number" id="width" name="width" th:field="*{truck.width}" class="form-control">
             </div>
 
+            <div class="col-md-6">
+                <label for="length" class="form-label">Length:</label>
+                <input type="number" id="length" name="length" th:field="*{truck.length}" class="form-control">
+            </div>
+
+            <div class="saveButton">
+                <div class="col-12">
+                    <button type="submit" value="Save" class="btn btn-success"
+                            th:text="#{newDriverForm.save}"
+                            style="border-radius: 55px; width: 120px; height: 36px;">Save User
+                    </button>
+                </div>
+            </div>
         </form>
 
         <div class="col-12 mt-3">
-            <a th:href="@{/drivers}" class="btn btn-secondary" th:text="#{newDriverForm.back}">Go back</a>
+            <a th:href="@{/drivers/1}" class="btn btn-secondary"
+               style="border-radius: 55px; width: 120px; height: 36px;"
+               th:text="#{newDriverForm.back}">Go back
+            </a>
         </div>
     </section>
 </div>
+
 </body>
 
 </html>

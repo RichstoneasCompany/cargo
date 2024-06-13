@@ -1,4 +1,4 @@
-package com.richstone.cargo.configuration;
+package com.richstone.cargo.configuration.external;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;

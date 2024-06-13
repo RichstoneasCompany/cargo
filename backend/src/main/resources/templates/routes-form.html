@@ -8,6 +8,21 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+        .custom-select-width {
+            width: auto;
+            min-width: 150px;
+            max-width: 200px;
+        }
+        .saveButton{
+            position: relative;
+            left:1000px;
+
+        }
+    </style>
 </head>
 <body>
 <div class="main-content container-fluid" layout:fragment="content">
@@ -22,7 +37,7 @@
             </div>
             <div class="col-md-6" >
                 <label for="startLocationId" th:text="#{routesForm.startLocation}">Start Location:</label><br>
-                <select id="startLocationId" name="startLocationId">
+                <select id="startLocationId" name="startLocationId" class="form-select custom-select-width">
                     <option value="">Select Start Location</option>
                     <th:block th:each="location : ${locations}">
                         <option th:value="${location.id}" th:text="${location.name}"></option>
@@ -31,15 +46,17 @@
             </div>
             <div class="col-md-6">
                 <label for="endLocationId" th:text="#{routesForm.endLocation}">End Location:</label><br>
-                <select id="endLocationId" name="endLocationId">
+                <select id="endLocationId" name="endLocationId" class="form-select custom-select-width">
                     <option value="">Select End Location</option>
                     <th:block th:each="location : ${locations}">
                         <option th:value="${location.id}" th:text="${location.name}"></option>
                     </th:block>
                 </select><br>
             </div>
+            <div class="saveButton">
             <div class="col-12">
-                <button type="submit" value="Save" class="btn btn-success" th:text="#{routesForm.save}">Save Location</button>
+                <button type="submit" value="Save" class="btn btn-success" style=" background-color: #071438; color: #fff; border-color: #071438" th:text="#{routesForm.save}">Save Location</button>
+            </div>
             </div>
         </form>
 

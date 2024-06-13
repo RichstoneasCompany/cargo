@@ -8,28 +8,57 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+        .custom-btn {
+            background-color: #071438;
+            color: #fff;
+        }
+        .custom-btn:hover {
+            background-color: rgba(56, 73, 148, 0.71);
+            color: white;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination-container div {
+            margin: 0 5px;
+        }
+
+    </style>
 </head>
 <body>
 <div class="main-content container-fluid" layout:fragment="content">
 
     <section class="section">
+        <div class="table-responsive">
         <div class="container mt-3">
-            <h3>Trips</h3>
-            <a th:href="@{/trips/formForAddTrip}" class="btn btn-primary mb-2"
-               sec:authorize="hasAnyRole('ADMIN', 'DISPATCHER')" th:text="#{tripPage.add}">Add trip</a>
+            <h3 th:text="#{tripPage.title}">Trips</h3>
             <table class="table table-bordered">
                 <thead>
                 <tr>
-                    <th >Id</th>
+                    <th>Id</th>
                     <th th:text="#{tripPage.route}">Route</th>
                     <th th:text="#{tripPage.departureTime}">Departure Time</th>
                     <th th:text="#{tripPage.arrivalTime}">Arrival Time</th>
                     <th th:text="#{tripPage.tripStatus}">Trip Status</th>
                     <th th:text="#{tripPage.driver}">Assigned Driver</th>
+                    <th th:text="#{tripPage.income}">Income</th>
+                    <th th:text="#{tripPage.expense}">Expense</th>
+                    <th th:text="#{tripPage.profit}">Profit</th>
+
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="trip : ${trips}">
+                <tr th:each="trip, i : ${trips}">
                     <td>
                         <a th:href="@{/trips/details/{id}(id=${trip.id})}" th:text="${trip.id}">Details</a>
                     </td>
@@ -38,21 +67,47 @@
                     <td th:text="${trip.arrivalTime}"></td>
                     <td th:text="${trip.tripStatus}"></td>
                     <td th:text="${trip.assignedDriver != null ? (trip.assignedDriver.getUser().firstname + ' ' + trip.assignedDriver.getUser().lastname) : 'N/A'}"></td>
-
+                    <td>
+                        <a th:href="@{/trips/incomes/{id}(id=${trip.id})}" th:text="${incomes[i.index]}"></a>
+                    </td>
+                    <td>
+                        <a th:href="@{/trips/expenses/{id}(id=${trip.id})}" th:text="${expenses[i.index]}"></a>
+                    </td>
+                    <td th:text="${incomes[i.index] - expenses[i.index]}"></td>
                     <td sec:authorize="hasAnyRole('ADMIN', 'DISPATCHER')">
-                        <a th:href="@{/trips/formForUpdateTrip(id=${trip.id})}" class="btn btn-warning btn-sm" th:text="#{tripPage.edit}">Edit</a>
+                        <a th:href="@{/trips/formForUpdateTrip(id=${trip.id})}" class="btn custom-btn"
+                           th:text="#{tripPage.edit}">Edit</a>
                     </td>
                     <td sec:authorize="hasRole('ADMIN')">
                         <form th:action="@{/trips/delete(id=${trip.id})}" method="post">
-                            <button type="submit" class="btn btn-danger btn-sm" style="margin-top: 5px;">Remove</button>
+                            <button type="submit" class="btn custom-btn" style="margin-top: 5px;"
+                                    th:text="#{tripPage.remove}">Remove
+                            </button>
                         </form>
                     </td>
                 </tr>
                 </tbody>
             </table>
+            </div>
 
         </div>
     </section>
+    <div th:if="${totalPages > 1}" class="pagination-container">
+        <div>
+                    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                        <a th:if="${currentPage != i}" th:href="@{'/trips/' + ${i}}">[[${i}]]</a>
+                        <span th:unless="${currentPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+                    </span>
+        </div>
+        <div>
+            <a th:text="#{button.next}" th:if="${currentPage < totalPages}" th:href="@{'/trips/' + ${currentPage + 1}}">Next</a>
+            <span th:text="#{button.next}" th:unless="${currentPage < totalPages}">Next</span>
+        </div>
+        <div>
+            <a th:text="#{button.last}" th:if="${currentPage < totalPages}" th:href="@{'/trips/' + ${totalPages}}">Last</a>
+            <span th:text="#{button.last}" th:unless="${currentPage < totalPages}">Last</span>
+        </div>
+    </div>
 </div>
 </body>
 </html>

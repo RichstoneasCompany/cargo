@@ -1,8 +1,11 @@
 package com.richstone.cargo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.richstone.cargo.model.types.ExpenseType;
+import com.richstone.cargo.model.types.TripStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +16,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,5 +30,7 @@ public class Expense {
     @ManyToOne
     @JoinColumn(name = "payslip_id", referencedColumnName = "id")
     private Payslip payslip;
+    @Enumerated(EnumType.STRING)
+    private ExpenseType expenseType;
 
 }

@@ -1,6 +1,8 @@
 package com.richstone.cargo.controllers.web;
 
 import com.richstone.cargo.dto.*;
+import com.richstone.cargo.mapper.DriverMapper;
+import com.richstone.cargo.mapper.TruckMapper;
 import com.richstone.cargo.model.*;
 import com.richstone.cargo.service.impl.DriverServiceImpl;
 import com.richstone.cargo.service.impl.ImageServiceImpl;
@@ -9,10 +11,12 @@ import com.richstone.cargo.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,17 +32,25 @@ public class DriverViewController {
     private final ImageServiceImpl imageService;
     private final TruckServiceImpl truckService;
 
-    @GetMapping("/inactiveDrivers")
-    public String inactiveDriversList(Model model) {
-        List<User> drivers = userService.getInactiveDrivers();
-        model.addAttribute("drivers", drivers);
+    @GetMapping("/inactiveDrivers/{pageNo}")
+    public String inactiveDriversList(@PathVariable(value = "pageNo") int pageNo, Model model) {
+        int pageSize = 10;
+        Page<User> page = userService.getInactiveDrivers(pageNo, pageSize);
+        model.addAttribute("drivers", page.getContent());
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("pageSize", pageSize);
         return "inactive-driver-list";
     }
 
-    @GetMapping
-    public String driversList(Model model) {
-        List<User> drivers = userService.getAllDrivers();
-        model.addAttribute("drivers", drivers);
+    @GetMapping("/{pageNo}")
+    public String driversList(@PathVariable(value = "pageNo") int pageNo, Model model) {
+        int pageSize = 10;
+        Page<User> page = userService.getAllDrivers(pageNo, pageSize);
+        model.addAttribute("drivers", page.getContent());
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("pageSize", pageSize);
         return "driver-list";
     }
 
@@ -46,35 +58,57 @@ public class DriverViewController {
     public String formForUpdateDriver(@RequestParam("id") Long id, Model model) {
         User user = userService.findById(id);
         Driver driver = driverService.findByUserId(user.getId());
-        TruckDto truck = truckService.getTruckByDriver(driver);
-        model.addAttribute("user", user);
-        model.addAttribute("truck", truck);
+        Truck truckByDriver = truckService.getTruckByDriver(driver);
+        TruckDto truck = TruckMapper.INSTANCE.truckToDto(truckByDriver);
+        DriverUpdateDto driverUpdateDto = new DriverUpdateDto();
+        driverUpdateDto.setDriver(driver);
+        driverUpdateDto.setTruck(truck);
+        driverUpdateDto.setUser(user);
+
+        Image image = imageService.getImageToUser(user);
+        if (image != null && image.getImageBytes() != null && image.getImageBytes().length > 0) {
+            String encodedImg = Base64.getEncoder().encodeToString(image.getImageBytes());
+            model.addAttribute("driverImage", encodedImg);
+        } else {
+            try {
+                Resource resource = new ClassPathResource("static/images/default.png");
+                byte[] defaultImageBytes;
+                try (InputStream inputStream = resource.getInputStream()) {
+                    defaultImageBytes = inputStream.readAllBytes();
+                }
+                String encodedImg = Base64.getEncoder().encodeToString(defaultImageBytes);
+                model.addAttribute("driverImage", encodedImg);
+            } catch (IOException e) {
+                return "error-page";
+            }
+        }
+        driverUpdateDto.setImage(image);
+        model.addAttribute("driverUpdateDto", driverUpdateDto);
         return "driver-form";
     }
 
-    @PostMapping("/save")
-    public String updateDriver(@ModelAttribute("user") User user, @RequestParam(value = "isEnabled", required = false) boolean isEnabled) {
-        User existingUser = userService.findById(user.getId());
+    @PostMapping("/update")
+    public String updateDriver(@ModelAttribute("driverUpdateDto") DriverUpdateDto driverUpdateDto) {
+        User existingUser = userService.findById(driverUpdateDto.getUser().getId());
+        Driver driver = driverService.findByUserId(existingUser.getId());
+        Truck truckByDriver = truckService.getTruckByDriver(driver);
 
-        existingUser.setUsername(user.getUsername());
-        existingUser.setFirstname(user.getFirstname());
-        existingUser.setLastname(user.getLastname());
-        existingUser.setEmail(user.getEmail());
-        existingUser.setPhone(user.getPhone());
-        existingUser.setRole(user.getRole());
-        existingUser.setEnabled(isEnabled);
-
+        DriverMapper.INSTANCE.updateUserFromDto(driverUpdateDto, existingUser);
         userService.save(existingUser);
-        return "redirect:/drivers/inactiveDrivers";
+        DriverMapper.INSTANCE.updateDriverFromDto(driverUpdateDto, driver);
+        driverService.save(driver);
+        DriverMapper.INSTANCE.updateTruckFromDto(driverUpdateDto, truckByDriver);
+        truckService.save(truckByDriver);
+
+        return "redirect:/drivers/1";
     }
 
-    @PostMapping("/delete")
-    public String deleteDriver(@RequestParam("userId") Long id) {
+    @PostMapping("/markAsDeleted")
+    public String markDriverAsDeleted(@RequestParam("userId") Long id) {
         User user = userService.findById(id);
-        driverService.delete(user);
-        userService.delete(user);
+        driverService.markDriverAsDeleted(user);
 
-        return "redirect:/drivers";
+        return "redirect:/drivers/1";
     }
 
     @GetMapping("/formForAddDriver")
@@ -85,40 +119,47 @@ public class DriverViewController {
     }
 
     @PostMapping("/add")
-    public String addDriver(@ModelAttribute("driverForm") DriverFormDto driverForm) {
+    public String addDriver(@ModelAttribute("driverForm") DriverFormDto driverForm,  @RequestParam("file") MultipartFile file) throws IOException {
         Driver driver = driverService.addDriver(driverForm.getUser());
         Truck truck = truckService.addTruck(driverForm.getTruck());
         truck.setDriver(driver);
         driver.setTruck(truck);
         driver.setLicenseNumber(driverForm.getLicenseNumber());
         driverService.save(driver);
+        User user = userService.findByUsername(driverForm.getUser().getUsername());
         truckService.save(truck);
-        return "redirect:/drivers";
+        imageService.uploadImageToDriver(file, user.getId());
+        return "redirect:/drivers/1";
     }
 
-    @GetMapping("/deletedDrivers")
-    public String deletedDriversList(Model model) {
-        List<User> drivers = userService.getDeletedDrivers();
-        model.addAttribute("drivers", drivers);
+    @GetMapping("/deletedDrivers/{pageNo}")
+    public String deletedDriversList(@PathVariable(value = "pageNo") int pageNo, Model model) {
+        int pageSize = 10;
+        Page<User> page = userService.getDeletedDrivers(pageNo,pageSize);
+        model.addAttribute("drivers", page.getContent());
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("pageSize", pageSize);
         return "deleted-drivers-list";
     }
 
     @PostMapping("/undelete")
     public String undelete(@RequestParam("userId") Long id) {
         User user = userService.findById(id);
-        driverService.undelete(user);
-
-        return "redirect:/drivers/deletedDrivers";
+        driverService.markDriverAsUndeleted(user);
+        return "redirect:/drivers/deletedDrivers/1";
     }
 
     @GetMapping("/details/{id}")
     public String driverDetails(@PathVariable("id") Long id, Model model) {
         Driver driver = driverService.findByUserId(id);
         Image image = imageService.getImageToUser(driver.getUser());
-        TruckDto truck = truckService.getTruckByDriver(driver);
+        Truck truckByDriver = truckService.getTruckByDriver(driver);
+        TruckDto truck = TruckMapper.INSTANCE.truckToDto(truckByDriver);
+
         if (image != null && image.getImageBytes() != null && image.getImageBytes().length > 0) {
             String encodedImg = Base64.getEncoder().encodeToString(image.getImageBytes());
-            model.addAttribute("encodedImg", encodedImg);
+            model.addAttribute("driverDetailsImage", encodedImg);
         } else {
             try {
                 Resource resource = new ClassPathResource("static/images/default.png");
@@ -138,4 +179,10 @@ public class DriverViewController {
         return "driver-details-page";
     }
 
+    @PostMapping("/delete")
+    public String deleteDriver(@RequestParam("userId") Long id) {
+        User user = userService.findById(id);
+        driverService.delete(user);
+        return "redirect:/drivers/1";
+    }
 }

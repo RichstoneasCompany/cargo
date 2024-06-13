@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <title th:text="#{locationForm.title}">Title</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+    </style>
 </head>
 <body>
 
@@ -26,7 +31,7 @@
 
 
         <div class="col-12 mt-3">
-            <a th:href="@{/locations}" class="btn btn-secondary" th:text="#{locationForm.back}">Go back</a>
+            <a th:href="@{/locations/1}" class="btn btn-secondary" th:text="#{locationForm.back}">Go back</a>
         </div>
     </section>
 </div>

@@ -3,7 +3,7 @@
       layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{tripUpdateForm.title}">Title</title>
+    <title th:text="#{driverDetailsPage.title}">Title</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
 </head>
 <body>
@@ -15,7 +15,7 @@
             <tbody>
             <tr>
                 <td>Photo:</td>
-                <td><img th:src="@{'data:image/png;base64,' + ${encodedImg}}" alt="Driver Image" style="width: 100px; height: 100px;"/></td>
+                <td><img th:src="@{'data:image/png;base64,' + ${driverDetailsImage}}" alt="Driver Image" style="width: 100px; height: 100px;"/></td>
             </tr>
             <tr>
                 <td>Username:</td>
@@ -28,6 +28,14 @@
             <tr>
                 <td>Lastname:</td>
                 <td th:text="${driver.getUser().lastname}"></td>
+            </tr>
+            <tr>
+                <td>Birth Date:</td>
+                <td th:text="${driver.getUser().birthDate}"></td>
+            </tr>
+            <tr>
+                <td>Gender:</td>
+                <td th:text="${driver.getUser().gender}"></td>
             </tr>
             <tr>
                 <td>Phone:</td>
@@ -88,7 +96,7 @@
 
 
         <div class="col-12 mt-3">
-            <a th:href="@{/trips}" class="btn btn-secondary" th:text="#{tripUpdateForm.back}">Go back</a>
+            <a th:href="@{/trips/1}" class="btn btn-secondary" th:text="#{tripUpdateForm.back}">Go back</a>
         </div>
     </section>
 </div>

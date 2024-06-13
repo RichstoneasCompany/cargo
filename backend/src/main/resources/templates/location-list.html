@@ -3,11 +3,25 @@
       layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title th:text="#{locationList.title}">Title</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination-container div {
+            margin: 0 5px;
+        }
+    </style>
 </head>
 <body>
 <div class="main-content container-fluid" layout:fragment="content">
@@ -17,7 +31,8 @@
     <section class="section">
 
         <div class="container mt-3">
-            <a th:href="@{/locations/add}" class="btn btn-primary mb-2"
+            <a th:href="@{/locations/add}" class="btn btn-warning btn-sm" style="background-color: #071438;
+        color: #fff;border-color: #ffffff"
                sec:authorize="hasAnyRole('ADMIN', 'DISPATCHER')" th:text="#{locationList.add}">Add location</a>
 
             <table class="table table-bordered">
@@ -38,7 +53,8 @@
                     <td th:text="${location.coordinates.longitude}"></td>
                     <td>
                         <form th:action="@{/locations/delete(locationId=${location.id})}" method="post">
-                            <button type="submit" class="btn btn-danger btn-sm" th:text="#{locationList.remove}" >Remove</button>
+                            <button type="submit" class="btn btn-warning btn-sm" style="margin-top: 5px; background-color: #071438;
+        color: #fff;border-color: #071438" th:text="#{locationList.remove}" >Remove</button>
                         </form>
                     </td>
                 </tr>
@@ -46,6 +62,22 @@
             </table>
         </div>
     </section>
+    <div th:if="${totalPages > 1}" class="pagination-container">
+        <div>
+                    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                        <a th:if="${currentPage != i}" th:href="@{'/locations/' + ${i}}">[[${i}]]</a>
+                        <span th:unless="${currentPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+                    </span>
+        </div>
+        <div>
+            <a th:text="#{button.next}" th:if="${currentPage < totalPages}" th:href="@{'/locations/' + ${currentPage + 1}}">Next</a>
+            <span th:text="#{button.next}" th:unless="${currentPage < totalPages}">Next</span>
+        </div>
+        <div>
+            <a th:text="#{button.last}" th:if="${currentPage < totalPages}" th:href="@{'/locations/' + ${totalPages}}">Last</a>
+            <span th:text="#{button.last}" th:unless="${currentPage < totalPages}">Last</span>
+        </div>
+    </div>
 </div>
 </body>
 </html>

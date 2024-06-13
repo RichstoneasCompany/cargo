@@ -4,6 +4,10 @@ import com.richstone.cargo.model.Coordinates;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface CoordinatesRepository extends JpaRepository<Coordinates, Long> {
+
+    Optional<Coordinates> findByLatitudeAndLongitude(Double latitude, Double longitude);
 }

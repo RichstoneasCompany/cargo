@@ -1,6 +1,6 @@
 package com.richstone.cargo.service.impl;
 
-import com.richstone.cargo.configuration.JwtService;
+import com.richstone.cargo.configuration.security.JwtService;
 import com.richstone.cargo.dto.AuthenticationResponse;
 import com.richstone.cargo.dto.UserDto;
 import com.richstone.cargo.model.Customer;

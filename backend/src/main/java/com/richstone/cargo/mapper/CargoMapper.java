@@ -12,4 +12,6 @@ public interface CargoMapper {
 
     CargoDto cargoToCargoDto(Cargo cargo);
 
+    Cargo dtoToCargo(CargoDto cargoDto);
+
 }

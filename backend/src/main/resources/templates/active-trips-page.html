@@ -8,6 +8,20 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination-container div {
+            margin: 0 5px;
+        }
+    </style>
 </head>
 <body>
 <div class="main-content container-fluid" layout:fragment="content">
@@ -34,7 +48,8 @@
                     <td th:text="${trip.assignedDriver != null ? (trip.assignedDriver.getUser().firstname + ' ' + trip.assignedDriver.getUser().lastname) : 'N/A'}"></td>
 
                     <td sec:authorize="hasAnyRole('DRIVER','ADMIN', 'DISPATCHER')">
-                        <a th:href="@{/trips/formForUpdateTrip(id=${trip.id})}" class="btn btn-warning btn-sm" th:text="#{tripPage.edit}">Edit</a>
+                        <a th:href="@{/trips/formForUpdateTrip(id=${trip.id})}" class="btn btn-warning btn-sm" style="margin-top: 5px; background-color: #071438;
+        color: #fff;border-color: #071438" th:text="#{tripPage.edit}">Edit</a>
                     </td>
                 </tr>
                 </tbody>
@@ -42,6 +57,22 @@
 
         </div>
     </section>
+    <div th:if="${totalPages > 1}" class="pagination-container">
+        <div>
+                    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                        <a th:if="${currentPage != i}" th:href="@{'/trips/activeTrips/' + ${i}}">[[${i}]]</a>
+                        <span th:unless="${currentPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+                    </span>
+        </div>
+        <div>
+            <a th:text="#{button.next}" th:if="${currentPage < totalPages}" th:href="@{'/trips/activeTrips/' + ${currentPage + 1}}">Next</a>
+            <span th:text="#{button.next}" th:unless="${currentPage < totalPages}">Next</span>
+        </div>
+        <div>
+            <a th:text="#{button.last}" th:if="${currentPage < totalPages}" th:href="@{'/trips/activeTrips/' + ${totalPages}}">Last</a>
+            <span th:text="#{button.last}" th:unless="${currentPage < totalPages}">Last</span>
+        </div>
+    </div>
 </div>
 </body>
 </html>

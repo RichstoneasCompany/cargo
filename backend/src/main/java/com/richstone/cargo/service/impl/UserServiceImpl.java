@@ -9,6 +9,9 @@ import com.richstone.cargo.repository.UserRepository;
 import com.richstone.cargo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -156,4 +159,37 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findDeletedDrivers()
                 .orElseThrow(() -> new DriverNotFoundException("Deleted drivers not found ", new DriverNotFoundException()));
     }
+
+    public Page<User> getInactiveDrivers(int pageNo, int pageSize) {
+        log.info("Fetching inactive drivers for page number: {} with page size: {}", pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<User> inactiveDrivers = userRepository.findInactiveDrivers(pageable);
+        log.info("Retrieved {} inactive drivers", inactiveDrivers.getNumberOfElements());
+        return inactiveDrivers;
+    }
+
+    public Page<User> getAllDrivers(int pageNo, int pageSize) {
+        log.info("Fetching all drivers for page number: {} with page size: {}", pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<User> allDrivers = userRepository.findDrivers(pageable);
+        log.info("Retrieved {} drivers", allDrivers.getNumberOfElements());
+        return allDrivers;
+    }
+
+    public Page<User> getDeletedDrivers(int pageNo, int pageSize) {
+        log.info("Fetching deleted drivers for page number: {} with page size: {}", pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<User> deletedDrivers = userRepository.findDeletedDrivers(pageable);
+        log.info("Retrieved {} deleted drivers", deletedDrivers.getNumberOfElements());
+        return deletedDrivers;
+    }
+
+    public Page<User> getAllDispatchers(int pageNo, int pageSize) {
+        log.info("Fetching all dispatchers for page number: {} with page size: {}", pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<User> allDispatchers = userRepository.findDispatchers(pageable);
+        log.info("Retrieved {} dispatchers", allDispatchers.getNumberOfElements());
+        return allDispatchers;
+    }
+
 }

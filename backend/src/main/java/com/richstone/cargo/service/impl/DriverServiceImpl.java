@@ -1,20 +1,18 @@
 package com.richstone.cargo.service.impl;
 
-import com.richstone.cargo.configuration.JwtService;
 import com.richstone.cargo.dto.*;
 import com.richstone.cargo.exception.DriverNotFoundException;
 import com.richstone.cargo.model.*;
 import com.richstone.cargo.model.types.Gender;
-import com.richstone.cargo.model.types.OtpStatus;
 import com.richstone.cargo.model.types.Role;
 import com.richstone.cargo.repository.DeviceTokenRepository;
 import com.richstone.cargo.repository.DriverRepository;
-import com.richstone.cargo.repository.TokenRepository;
 import com.richstone.cargo.repository.VerificationTokenRepository;
 import com.richstone.cargo.service.DriverService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.apache.tomcat.websocket.AuthenticationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +29,10 @@ public class DriverServiceImpl implements DriverService {
     private final TripServiceImpl tripService;
     private final DeviceTokenRepository deviceTokenRepository;
     private final OtpServiceImpl otpService;
-    private static final String API_2GIS_KEY = "93b1632a-cbba-4cf7-bcee-2c8a5fd074dc";
-    private static final String TYPE = "car";
 
+    @Value("${api.2gis.key}")
+    private String API_2GIS_KEY;
+    private static final String TYPE = "car";
 
 
     @Override
@@ -44,7 +43,7 @@ public class DriverServiceImpl implements DriverService {
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .password(passwordEncoder.encode(""))
                 .role(Role.DRIVER)
                 .phone(request.getPhone())
                 .birthDate(request.getBirthDate())
@@ -55,6 +54,7 @@ public class DriverServiceImpl implements DriverService {
         driverRepository.save(driver);
         return driver;
     }
+
     public void registerDriver(RegistrationDto user) {
         log.info("Registering driver: {}", user.getPhone());
         User userByPhone = userService.findByPhone(user.getPhone());
@@ -108,9 +108,9 @@ public class DriverServiceImpl implements DriverService {
         return driver;
     }
 
-    public String buildRoute(Long id) {
+    public RouteResponse buildRoute(Long id) {
         Driver driver = findByUserId(id);
-        Trip trip = tripService.findTripByAssignedDriver(driver);
+        Trip trip = tripService.findInProgressTripByAssignedDriver(driver);
         Route route = trip.getRoute();
 
         Coordinates start = route.getStartLocationId().getCoordinates();
@@ -119,31 +119,32 @@ public class DriverServiceImpl implements DriverService {
         String uri = String.format("https://2gis.ru/routeSearch/rsType/%s/from/%f,%f/to/%f,%f?key=%s",
                 TYPE, start.getLongitude(), start.getLatitude(), end.getLongitude(), end.getLatitude(), API_2GIS_KEY);
         log.info("Constructed route URL: " + uri);
-        return uri;
+        return new RouteResponse(uri);
     }
 
-    public void delete(User user) {
-        log.info("Deleting driver for user: {}", user.getId());
+    public void markDriverAsDeleted(User user) {
         Driver driver = driverRepository.findDriverByUser(user);
         if (driver != null) {
             driver.getUser().setDeleted(true);
-            log.info("Driver deleted successfully: {}", driver.getId());
+            userService.save(driver.getUser());
+            log.info("Driver marked as deleted: {}", driver.getId());
         } else {
             log.warn("Driver not found for user: {}", user.getId());
         }
     }
 
-    public AuthenticationResponse loginDriver(DriverLoginDto request) {
+    public AuthenticationResponse loginDriver(DriverLoginDto request) throws AuthenticationException {
         User user = userService.findByPhone(request.getPhone());
 
         if (user != null && (passwordEncoder.matches(request.getPassword(), user.getPassword()))) {
             return otpService.generateJwt(user.getId());
 
-        }
-        return null;
+        } else {
+        throw new AuthenticationException("Invalid phone number or password");
+    }
     }
 
-    public Driver findById(Long id){
+    public Driver findById(Long id) {
         log.info("Finding driver by id: {}", id);
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> {
@@ -154,7 +155,7 @@ public class DriverServiceImpl implements DriverService {
         return driver;
     }
 
-    public void undelete(User user) {
+    public void markDriverAsUndeleted(User user) {
         log.info("Undeleting driver for user: {}", user.getId());
         Driver driver = driverRepository.findDriverByUser(user);
         if (driver != null) {
@@ -165,8 +166,22 @@ public class DriverServiceImpl implements DriverService {
             log.warn("Driver not found for user: {}", user.getId());
         }
     }
-    public void save(Driver driver){
+
+    public void save(Driver driver) {
         driverRepository.save(driver);
         log.info("Driver saved successfully: {}", driver.getId());
     }
+    public void delete(User user) {
+        log.info("Deleting driver for user: {}", user.getId());
+        Driver driver = driverRepository.findDriverByUser(user);
+        if (driver != null) {
+            tripService.deleteAllTripsByDriver(driver);
+            driverRepository.delete(driver);
+            userService.delete(driver.getUser());
+            log.info("Driver deleted successfully: {}", driver.getId());
+        } else {
+            log.warn("Driver not found for user: {}", user.getId());
+        }
+    }
+
 }

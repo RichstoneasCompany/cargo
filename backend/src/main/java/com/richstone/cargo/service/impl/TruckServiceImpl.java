@@ -10,10 +10,13 @@ import com.richstone.cargo.mapper.TruckMapper;
 import com.richstone.cargo.model.Driver;
 import com.richstone.cargo.model.Topic;
 import com.richstone.cargo.model.Truck;
+import com.richstone.cargo.model.User;
 import com.richstone.cargo.repository.TruckRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.security.Principal;
 
 
 @Service
@@ -21,6 +24,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TruckServiceImpl {
     private final TruckRepository truckRepository;
+    private final UserServiceImpl userService;
+    private final DriverServiceImpl driverService;
 
     public Truck addTruck(TruckRequestDto truckDto) {
         Truck truck = TruckMapper.INSTANCE.dtoToTruck(truckDto);
@@ -29,7 +34,7 @@ public class TruckServiceImpl {
         return savedTruck;
     }
 
-    public TruckDto getTruckByDriver(Driver driver) {
+    public Truck getTruckByDriver(Driver driver) {
         Truck truck = truckRepository.findTruckByDriverId(driver.getId())
                 .orElseThrow(() -> {
                     log.error("Truck not found with this driver id: {}", driver.getId());
@@ -38,12 +43,22 @@ public class TruckServiceImpl {
 
         log.info("Truck found with driver id: {}", driver.getId());
 
-        return TruckMapper.INSTANCE.truckToDto(truck);
+        return truck;
     }
     public void save(Truck truck){
         truckRepository.save(truck);
         log.info("Truck saved successfully: {}", truck.getId());
     }
+    public TruckDto getTruckByPrincipal(Principal principal){
+        log.info("Fetching truck by principal: {}", principal.getName());
+        User user = userService.getUserByPrincipal(principal);
+        Driver driver = driverService.findByUserId(user.getId());
+        Truck truck = getTruckByDriver(driver);
+        TruckDto truckDto = TruckMapper.INSTANCE.truckToDto(truck);
+        log.info("Successfully fetched truck by principal: {}", principal.getName());
+        return truckDto;
+    }
+
 
 
 

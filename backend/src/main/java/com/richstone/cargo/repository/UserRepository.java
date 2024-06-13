@@ -1,6 +1,8 @@
 package com.richstone.cargo.repository;
 
 import com.richstone.cargo.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -26,5 +28,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.isDeleted = true")
     Optional<List<User>> findDeletedDrivers();
+
+    @Query("SELECT u FROM User u WHERE u.isEnabled = false")
+    Page<User> findInactiveDrivers(Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.role = 'DRIVER'AND u.isEnabled = true AND u.isDeleted = false" )
+    Page<User> findDrivers(Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.isDeleted = true")
+    Page<User> findDeletedDrivers(Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.role = 'DISPATCHER'")
+    Page<User> findDispatchers(Pageable pageable);
 
 }

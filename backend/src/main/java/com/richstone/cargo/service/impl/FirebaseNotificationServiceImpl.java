@@ -3,6 +3,8 @@ package com.richstone.cargo.service.impl;
 import com.google.firebase.messaging.*;
 import com.google.gson.Gson;
 import com.richstone.cargo.dto.NotificationMessage;
+import com.richstone.cargo.model.DeviceToken;
+import com.richstone.cargo.model.User;
 import com.richstone.cargo.service.FirebaseNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 public class FirebaseNotificationServiceImpl implements FirebaseNotificationService {
 
     private final FirebaseMessaging firebaseMessaging;
+    private final DeviceTokenServiceImpl deviceTokenService;
 
     private AndroidConfig getAndroidConfig(String topic) {
         return AndroidConfig.builder()
@@ -55,8 +58,23 @@ public class FirebaseNotificationServiceImpl implements FirebaseNotificationServ
                 .build();
     }
 
-    public void sendTripUpdateNotification(NotificationMessage message){
+    public void sendTripUpdateNotification(User user){
+        NotificationMessage message = NotificationMessage.builder()
+                .topic("Изменение рейса")
+                .message("Детали вашего рейса были изменены.")
+                .build();
+        DeviceToken deviceToken = deviceTokenService.findDeviceTokenUserId(user.getId());
+        message.setToken(deviceToken.getToken());
+        sendNotification(message);
+    }
 
-
+    public void sendTemperatureNotification(User user){
+        NotificationMessage message = NotificationMessage.builder()
+                .topic("Предупреждение: Температура в кузове")
+                .message("Температура в кузове вашего рейса превысила норму.")
+                .build();
+        DeviceToken deviceToken = deviceTokenService.findDeviceTokenUserId(user.getId());
+        message.setToken(deviceToken.getToken());
+        sendNotification(message);
     }
 }

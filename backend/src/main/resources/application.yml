@@ -24,10 +24,20 @@ spring:
       host: localhost
       port: 6379
       password: redis
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: temperatureGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+
 application:
   security:
     jwt:
-      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      secret-key: ~
       expiration: 86400000 # a day
       refresh-token:
         expiration: 604800000 # 7 days
@@ -53,3 +63,16 @@ management:
     metrics:
       export:
         enabled: true
+api:
+  2gis:
+    key: ~
+  google:
+    key: ~
+  yandex:
+    key: ~
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: true

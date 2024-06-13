@@ -1,4 +1,4 @@
-package com.richstone.cargo.configuration;
+package com.richstone.cargo.configuration.external;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;

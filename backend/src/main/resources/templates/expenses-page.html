@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{expensePage.title}">Expenses</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+    </style>
+</head>
+<body>
+<div class="main-content container-fluid" layout:fragment="content">
+    <section class="section">
+        <div class="container mt-3">
+            <h3 th:text="#{expensePage.title}">Expenses</h3>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addExpenseModal"
+                    onclick="setTripId()" style="margin-top: 5px; background-color: #071438; color: #fff; border-color: #071438"  th:text="#{expensePage.addButton}">
+                Add expense
+            </button>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th th:text="#{expensePage.id}">Id</th>
+                    <th th:text="#{expensePage.amount}">Amount</th>
+                    <th th:text="#{expensePage.expenseType}">Type</th>
+                    <th th:text="#{expensePage.description}">Description</th>
+                    <th th:text="#{expensePage.tripId}">Trip</th>
+                    <th th:text="#{expensePage.date}">Date</th>
+                    <th th:text="#{expensePage.action}">Action</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="expense: ${expenses}">
+                    <td th:text="${expense.id}"></td>
+                    <td th:text="${expense.amount}"></td>
+                    <td th:text="${expense.expenseType}"></td>
+                    <td th:text="${expense.description}"></td>
+                    <td th:text="${expense.trip.id}" class="expenseTripId"></td>
+                    <td th:text="${expense.date}"></td>
+                    <td>
+                        <form class="deleteForm" th:action="@{/trips/deleteExpense}" method="post">
+                            <input type="hidden" name="id" th:value="${expense.id}">
+                            <button type="button" class="btn btn-danger btn-sm deleteButton" style="margin-top: 5px; background-color: #071438; color: #fff; border-color: #071438"
+                                    th:text="#{expensePage.remove}">Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <script th:inline="javascript">
+                $(document).ready(function () {
+                    $('.deleteButton').click(function () {
+                        if (confirm('Are you sure you want to delete this expense?')) {
+                            var formData = $(this).closest('form').serialize();
+                            $.ajax({
+                                type: 'POST',
+                                url: $(this).closest('form').attr('action'),
+                                data: formData,
+                                success: function (response) {
+                                    location.reload();
+                                },
+                                error: function (error) {
+                                    console.log('Error:', error);
+                                }
+                            });
+                        }
+                    });
+                });
+            </script>
+            <div class="modal fade" id="addExpenseModal" tabindex="-1" role="dialog"
+                 aria-labelledby="addExpenseModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addIncomeModalLabel" th:text="#{expensePage.addButton}">Add
+                                Expense</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top: -14px; margin-right:-2px; background-color: #071438; color: #fff; border-color: #071438">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/trips/addExpense" method="post" th:object="${expenseDto}"
+                                  id="addExpenseForm">
+                                <input type="hidden" id="tripId" name="tripId" class="form-control"
+                                       th:value="${tripId}">
+
+                                <div class="col-md-6">
+                                    <label for="expenseAmount" class="form-label" th:text="#{expensePage.amount}">Expense
+                                        amount:</label>
+                                    <input type="number" id="expenseAmount" name="incomeAmount" th:field="*{amount}"
+                                           class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="expenseDescription" class="form-label"
+                                           th:text="#{expensePage.description}">Expense description:</label>
+                                    <input type="text" id="expenseDescription" name="expenseDescription"
+                                           th:field="*{description}" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="expenseType" class="form-label" th:text="#{expensePage.expenseType}">Expense type:</label>
+                                    <select id="expenseType" name="expenseType" class="form-select">
+                                        <option th:each="expenseType : ${T(com.richstone.cargo.model.types.ExpenseType).values()}"
+                                                th:value="${expenseType}"
+                                                th:text="${expenseType}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+
+                                <button type="button" class="btn btn-primary" onclick="addIncome()" th:text="#{expensePage.save}" style=" background-color: #071438; color: #fff; border-color: #071438">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script th:inline="javascript">
+
+
+                function addIncome() {
+                    var formData = $('#addExpenseForm').serialize();
+                    $.ajax({
+                        type: 'POST',
+                        url: $('#addExpenseForm').attr('action'),
+                        data: formData,
+                        success: function (response) {
+                            location.reload();
+                        },
+                        error: function (error) {
+                            console.log('Error:', error);
+                        }
+                    });
+                }
+            </script>
+        </div>
+    </section>
+</div>
+</body>
+</html>

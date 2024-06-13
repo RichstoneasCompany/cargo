@@ -30,16 +30,30 @@ public class Trip {
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Income> incomes;
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Income> expenses;
+    private List<Expense> expenses;
     @ManyToOne
     @JoinColumn(name = "assigned_driver_id", referencedColumnName = "id")
     private Driver assignedDriver;
     @Enumerated(EnumType.STRING)
     private TripStatus tripStatus;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "cargo_id", referencedColumnName = "id")
     private Cargo cargo;
     private boolean isDeleted = false;
     @Column(name = "trip_number")
     private String tripNumber;
+
+    @Override
+    public String toString() {
+        return "Trip{" +
+                "id=" + id +
+                ", route=" + (route != null ? route.getId() : null) +
+                ", departureTime=" + departureTime +
+                ", arrivalTime=" + arrivalTime +
+                ", assignedDriver=" + (assignedDriver != null ? assignedDriver.getId() : null) +
+                ", tripStatus=" + tripStatus +
+                ", isDeleted=" + isDeleted +
+                ", tripNumber='" + tripNumber + '\'' +
+                '}';
+    }
 }

@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Login Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #ffffff;
             margin: 0;
             display: flex;
             justify-content: center;
@@ -15,35 +16,59 @@
         }
 
         form {
-            background-color: #fff;
+            background-color: #ffffff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
+            margin-top: 20px;
         }
 
         h3 {
             text-align: center;
-            color: #333;
+            color: #071438;
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 35px;
         }
 
         p {
             margin: 10px 0;
+            font-weight: bold;
         }
 
         input {
+            border: none;
+            border-bottom: 2px solid #000;
+            outline: none;
             width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
             box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 8px;
+            font-size: 16px;
+        }
+
+        .password-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .password-container input[type="password"] {
+            padding-right: 30px; /* Расстояние для иконки */
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
         }
 
         input[type="submit"] {
             background-color: #071438;
             color: white;
             cursor: pointer;
+            border-radius: 40px;
+            margin-top: 35px;
         }
 
         input[type="submit"]:hover {
@@ -54,38 +79,76 @@
             color: #ff0000;
             margin-bottom: 10px;
         }
-        #languageSelect {
+
+        .logo {
             position: absolute;
             top: 10px;
-            right: 10px;
+            left: 10px;
+        }
+
+        .logo img {
+            width: 650px;
+            height: 150px;
+        }
+        .diagonalLine {
+            display: block;
+        }
+
+        .diagonalLine.visible {
+            display: none;
         }
     </style>
 </head>
 <body>
+<div class="logo">
+    <img src="/images/logo.png" alt="Richstone Cargo">
+</div>
 
 <form action="#" th:action="@{/authenticateTheUser}" method="POST">
-    <h3>Login Page</h3>
+    <h3>Авторизация</h3>
 
-    <div th:if="${param.error}">
-        <div>You have entered the wrong username/password</div>
+
+    <p>
+        Логин: <input type="text" name="username">
+    </p>
+
+    <p class="password-container">
+        Пароль: <input type="password" name="password" id="password">
+        <span class="toggle-password" onclick="togglePasswordVisibility('password')">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="toggleLineVisibility()">
+        <path d="M22 12s-4-8-10-8S2 12 2 12s4 8 10 8 10-8 10-8zM16 12a4 4 "/>
+       <line class="diagonalLine" x1="20" y1="20" x2="4" y2="4" id="diagonalLine" />
+        <circle cx="12" cy="12" r="3"/>
+    </svg>
+</span>
+
+    </p>
+    <div th:if="${param.error}" style="text-align: center;">
+        <div>Вы ввели неправильный логин/пароль. Повторите попытку</div>
     </div>
 
-    <div th:if="${param.logout}">
+    <div th:if="${param.logout}" style="text-align: center;">
         <div>You have logged out</div>
     </div>
-
-    <p>
-        Username: <input type="text" name="username">
-    </p>
-
-    <p>
-        Password: <input type="password" name="password">
-    </p>
-
     <input type="hidden" name="token" th:value="${access_token}">
 
-    <input type="submit" value="Login">
+    <input type="submit" value="Войти">
 </form>
+
+<script>
+    function togglePasswordVisibility(passwordFieldId) {
+        const passwordField = document.getElementById(passwordFieldId);
+        const line = document.querySelector('.diagonalLine');
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        if (type === 'password') {
+            passwordField.setAttribute('type', 'password');
+            line.classList.remove('visible')
+        } else {
+            passwordField.setAttribute('type', 'text');
+            line.classList.add('visible')
+        }
+    }
+</script>
 
 </body>
 </html>

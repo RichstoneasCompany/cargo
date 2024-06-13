@@ -4,11 +4,15 @@ import com.richstone.cargo.dto.TopicDto;
 import com.richstone.cargo.dto.TopicRequestDto;
 import com.richstone.cargo.exception.TopicNotFoundException;
 import com.richstone.cargo.mapper.TopicMapper;
+import com.richstone.cargo.model.Route;
 import com.richstone.cargo.model.Topic;
 import com.richstone.cargo.repository.TopicRepository;
 import com.richstone.cargo.service.TopicService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,6 +64,14 @@ public class TopicServiceImpl implements TopicService {
         Topic topic = getTopic(id);
         topicRepository.delete(topic);
         log.info("Topic deleted successfully: {}", id);
+    }
+
+    public Page<TopicRequestDto> getAllTopics(int pageNo, int pageSize) {
+        log.info("Fetching topics for page number: {} with page size: {}", pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<Topic> topics = topicRepository.findAll(pageable);
+        log.info("Retrieved {} topics", topics.getNumberOfElements());
+        return topics.map(TopicMapper.INSTANCE::toDto);
     }
 
 }

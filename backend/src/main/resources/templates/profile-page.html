@@ -5,6 +5,17 @@
     <meta charset="UTF-8">
     <title>Profile</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <style>
+        .saveButton{
+            position: relative;
+            left:1000px;
+
+        }
+        .backButton{
+            position: relative;
+            bottom:38px;
+        }
+    </style>
 </head>
 <body>
 
@@ -77,14 +88,17 @@
                 <label for="phone" class="form-label" th:text="#{profile.phone}">Phone:</label>
                 <input type="text" id="phone" name="phone" th:field="*{phone}" class="form-control">
             </div>
-
+            <div class="saveButton">
             <div class="col-12">
                 <button type="submit" value="Save" class="btn btn-success" th:text="#{profile.save}">Save</button>
             </div>
+            </div>
 
         </form>
+        <div class="backButton">
         <div class="col-12 mt-3">
             <a th:href="@{/}" class="btn btn-secondary" th:text="#{profile.back}">Go back</a>
+        </div>
         </div>
     </section>
 </div>

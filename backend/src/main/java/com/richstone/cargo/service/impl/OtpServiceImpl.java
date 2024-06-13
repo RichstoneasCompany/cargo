@@ -1,7 +1,7 @@
 package com.richstone.cargo.service.impl;
 
-import com.richstone.cargo.configuration.JwtService;
-import com.richstone.cargo.configuration.TwilioConfig;
+import com.richstone.cargo.configuration.security.JwtService;
+import com.richstone.cargo.configuration.external.TwilioConfig;
 import com.richstone.cargo.dto.*;
 import com.richstone.cargo.exception.OtpNotFoundException;
 import com.richstone.cargo.model.Otp;
@@ -35,11 +35,14 @@ public class OtpServiceImpl implements OtpService {
         OtpResponseDto otpResponseDto;
 
         User userByPhone = userServiceImpl.findByPhone(OtpRequestDto.getPhoneNumber());
+        String otp = null; // Инициализируем otp значением null
+
         try {
             PhoneNumber to = new PhoneNumber(OtpRequestDto.getPhoneNumber());
             PhoneNumber from = new PhoneNumber(twilioConfig.getTrialNumber());
-            String otp = generateOTP();
-            saveUserOtp(userByPhone, otp, OtpStatus.DELIVERED);
+            otp = generateOTP(); // Генерируем otp
+
+            saveUserOtp(userByPhone, otp, OtpStatus.DELIVERED); // Сохраняем otp в базе данных
 
             String otpMessage = "Dear " + userByPhone.getFirstname() + ", Your OTP is " + otp + ". Use this password to sign into your account.";
             Message message = Message.creator(to, from, otpMessage).create();
@@ -47,11 +50,12 @@ public class OtpServiceImpl implements OtpService {
             otpResponseDto = new OtpResponseDto(OtpStatus.DELIVERED, "OTP sent successfully. " + otpMessage);
 
         } catch (Exception ex) {
-            this.saveUserOtp(userByPhone, null, OtpStatus.FAILED);
             otpResponseDto = new OtpResponseDto(OtpStatus.FAILED, "Error: " + ex.getMessage());
         }
+
         return otpResponseDto;
     }
+
 
     @Override
     public void saveUserOtp(User theUser, String otp, OtpStatus status) {
@@ -100,5 +104,11 @@ public class OtpServiceImpl implements OtpService {
                     log.error("Otp not found with otp: {}", otp);
                     return new OtpNotFoundException("Otp not found ");
                 });
+    }
+
+    public void checkOtp(OtpValidationDto otpValidationDto) {
+        Otp code = findByCode(otpValidationDto.getOneTimePassword());
+        code.setOtpStatus(OtpStatus.VERIFIED);
+        otpRepository.save(code);
     }
 }

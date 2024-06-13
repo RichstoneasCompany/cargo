@@ -3,61 +3,123 @@
       layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title th:text="#{questionPage.title}">Title</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+        .saveButton {
+            position: relative;
+            left: 1000px;
+        }
+    </style>
 </head>
 <body>
 <div class="main-content container-fluid" layout:fragment="content">
     <div class="page-title">
-        <h3 >List of questions</h3>
+        <h3 th:text="#{questionPage.title}">List of questions</h3>
     </div>
-
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuestionModal"
+            th:text="#{questionPage.add}" style="margin-top: 5px; background-color: #071438; color: #fff; border-color: #071438">
+        Add a question
+    </button>
     <section class="section">
-
         <div class="container mt-3">
-
             <div class="container">
-
-
                 <table class="table table-bordered">
                     <thead>
                     <tr>
-                        <th>Question</th>
-                        <th>Answer</th>
+                        <th th:text="#{questionPage.question}">Question</th>
+                        <th th:text="#{questionPage.answer}">Answer</th>
+                        <th th:text="#{questionPage.action}">Action</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="question : ${questions}">
                         <td th:text="${question.question}"></td>
                         <td th:text="${question.answer}"></td>
+                        <td>
+                            <form class="deleteForm" th:action="@{/topics/deleteQuestion(questionId=${question.id})}" method="post">
+                                <button type="button" class="btn btn-danger btn-sm deleteButton" style="margin-top: 5px; background-color: #071438; color: #fff; border-color: #ffffff" th:text="#{questionPage.remove}">Remove</button>
+                            </form>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
-                <div class="button">
-                    <a th:href="@{/topics}">
-                        <button class="btn btn-secondary">Go back</button>
-                    </a>
+
+                <div class="col-12 mt-3">
+                    <a th:href="@{/topics}" class="btn btn-secondary" style="margin-top: 73px; margin-left: -82px; background-color: #071438; color: #fff; border-color: #071438" th:text="#{questionPage.back}">Go back</a>
                 </div>
-
-                <h2>Add a Question</h2>
-                <form action="/topics/addQuestion" method="post" th:object="${question}">
-                    <input type="hidden" id="topicId" name="topicId" th:value="${topicId}"/>
-                    <div class="form-group">
-                        <label for="question">Question:</label>
-                        <input type="text" class="form-control" id="question" name="question" th:field="*{question}"
-                               required>
+                <script th:inline="javascript">
+                    $(document).ready(function () {
+                        $('.deleteButton').click(function () {
+                            if (confirm('Are you sure you want to delete this question?')) {
+                                var form = $(this).closest('form');
+                                $.ajax({
+                                    type: 'POST',
+                                    url: form.attr('action'),
+                                    data: form.serialize(),
+                                    success: function (response) {
+                                        location.reload();
+                                    },
+                                    error: function (error) {
+                                        console.log('Error:', error);
+                                    }
+                                });
+                            }
+                        });
+                    });
+                </script>
+                <div class="modal fade" id="addQuestionModal" tabindex="-1" role="dialog" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addQuestionModalLabel" th:text="#{questionPage.add}">Add a question</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                                        style="margin-top: -14px; margin-right: -2px; background-color: #071438; color: #fff; border-color: #071438">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/topics/addQuestion" method="post" th:object="${question}" id="addQuestionForm">
+                                    <input type="hidden" id="topicId" name="topicId" th:value="${topicId}">
+                                    <div class="form-group">
+                                        <label for="question" th:text="#{questionPage.question}">Question:</label>
+                                        <input type="text" class="form-control" id="question" name="question" th:field="*{question}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="answer" th:text="#{questionPage.answer}">Answer:</label>
+                                        <input type="text" class="form-control" id="answer" name="answer" th:field="*{answer}" required>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="addQuestion()"
+                                        th:text="#{questionPage.save}" style="margin-top: 5px; background-color: #071438; color: #fff; border-color: #071438">Save</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="answer">Answer:</label>
-                        <input type="text" class="form-control" id="answer" name="answer" th:field="*{answer}" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-                <div style="margin-top: 10px;"></div>
-
+                </div>
+                <script th:inline="javascript">
+                    function addQuestion() {
+                        var formData = $('#addQuestionForm').serialize();
+                        $.ajax({
+                            type: 'POST',
+                            url: $('#addQuestionForm').attr('action'),
+                            data: formData,
+                            success: function (response) {
+                                location.reload();
+                            },
+                            error: function (error) {
+                                console.log('Error:', error);
+                            }
+                        });
+                    }
+                </script>
             </div>
         </div>
     </section>

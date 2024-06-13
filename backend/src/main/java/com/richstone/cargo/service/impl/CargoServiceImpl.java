@@ -36,7 +36,8 @@ public class CargoServiceImpl implements CargoService {
         log.info("Cargo saved successfully: {}", cargo.getName());
         return cargo;
     }
-    public CargoDto getCargoByTripId(Long tripId){
+
+    public CargoDto getCargoByTripId(Long tripId) {
         log.info("Finding cargo by tripId: {}", tripId);
         Cargo cargo = cargoRepository.findByTripId(tripId)
                 .orElseThrow(() -> {
@@ -45,6 +46,21 @@ public class CargoServiceImpl implements CargoService {
                 });
         log.info("Cargo found with id:  {}", tripId);
         return CargoMapper.INSTANCE.cargoToCargoDto(cargo);
+    }
+
+    public void updateCargo(Cargo cargo) {
+        cargoRepository.save(cargo);
+    }
+
+    public Cargo getCargoByTrip(Long tripId) {
+        log.info("Finding cargo by tripId: {}", tripId);
+        Cargo cargo = cargoRepository.findByTripId(tripId)
+                .orElseThrow(() -> {
+                    log.error("Cargo not found with this id: {}", tripId);
+                    return new CargoNotFoundException("Cargo not found with this id: " + tripId);
+                });
+        log.info("Cargo found with id:  {}", tripId);
+        return cargo;
     }
 
 }

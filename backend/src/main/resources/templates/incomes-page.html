@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{incomePage.title}">Incomes</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="main-content container-fluid" layout:fragment="content">
+    <section class="section">
+        <div class="container mt-3">
+            <h3 th:text="#{incomePage.title}">Incomes</h3>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addIncomeModal"
+                    th:text="#{incomePage.addButton}"
+                    onclick="setTripId()" style="margin-top: 5px; background-color: #071438; color: #fff; border-color: #071438" >
+                Add Income
+            </button>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th th:text="#{incomePage.addButton}">Id</th>
+                    <th th:text="#{incomePage.amount}">Amount</th>
+                    <th th:text="#{incomePage.description}">Description</th>
+                    <th th:text="#{incomePage.tripId}">Trip</th>
+                    <th th:text="#{incomePage.date}">Date</th>
+                    <th th:text="#{incomePage.action}">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="income: ${incomes}">
+                    <td th:text="${income.id}"></td>
+                    <td th:text="${income.amount}"></td>
+                    <td th:text="${income.description}"></td>
+                    <td th:text="${income.trip.id}" class="incomeTripId"></td>
+                    <td th:text="${income.date}"></td>
+                    <td>
+                        <form class="deleteForm" th:action="@{/trips/deleteIncome}" method="post">
+                            <input type="hidden" name="id" th:value="${income.id}">
+                            <button type="button" class="btn btn-danger btn-sm deleteButton" style="margin-top: 5px; background-color: #071438; color: #fff; border-color: #071438"
+                                    th:text="#{incomePage.remove}" >Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <script th:inline="javascript">
+                $(document).ready(function () {
+                    $('.deleteButton').click(function () {
+                        if (confirm('Are you sure you want to delete this income?')) {
+                            var formData = $(this).closest('form').serialize();
+                            $.ajax({
+                                type: 'POST',
+                                url: $(this).closest('form').attr('action'),
+                                data: formData,
+                                success: function (response) {
+                                    location.reload();
+                                },
+                                error: function (error) {
+                                    console.log('Error:', error);
+                                }
+                            });
+                        }
+                    });
+                });
+            </script>
+            <div class="modal fade" id="addIncomeModal" tabindex="-1" role="dialog"
+                 aria-labelledby="addIncomeModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addIncomeModalLabel" th:text="#{incomePage.addButton}">Add
+                                Income</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top: -14px; margin-right:-2px; background-color: #071438; color: #fff; border-color: #071438">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/trips/addIncome" method="post" th:object="${incomeDto}"
+                                  id="addIncomeForm">
+                                <input type="hidden" id="tripId" name="tripId" class="form-control"
+                                       th:value="${tripId}">
+
+                                <div class="col-md-6">
+                                    <label for="incomeAmount" class="form-label" th:text="#{incomePage.amount}">Income
+                                        amount:</label>
+                                    <input type="number" id="incomeAmount" name="incomeAmount" th:field="*{amount}"
+                                           class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="incomeDescription" class="form-label"
+                                           th:text="#{incomePage.description}">Income description:</label>
+                                    <input type="text" id="incomeDescription" name="incomeDescription"
+                                           th:field="*{description}" class="form-control">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" onclick="addIncome()"
+                                    th:text="#{incomePage.save}" style="margin-top: 5px; background-color: #071438; color: #fff; border-color: #071438" >Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script th:inline="javascript">
+
+
+                function addIncome() {
+                    var formData = $('#addIncomeForm').serialize();
+                    $.ajax({
+                        type: 'POST',
+                        url: $('#addIncomeForm').attr('action'),
+                        data: formData,
+                        success: function (response) {
+                            location.reload();
+                        },
+                        error: function (error) {
+                            console.log('Error:', error);
+                        }
+                    });
+                }
+            </script>
+        </div>
+    </section>
+</div>
+</body>
+</html>

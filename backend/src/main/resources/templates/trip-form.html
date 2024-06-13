@@ -5,69 +5,118 @@
     <meta charset="UTF-8">
     <title th:text="#{tripForm.title}">Title</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+        .custom-select-width {
+            width: auto;
+            min-width: 150px;
+            max-width: 200px;
+        }
+        .saveButton {
+            position: relative;
+            left: 1000px;
+        }
+    </style>
 </head>
 <body>
 
 <header th:replace="fragments/header::header"></header>
 <div class="main-content container-fluid" layout:fragment="content">
     <section class="section">
-
-        <form action="/trips/save" method="post" th:object="${trip}" class="row g-3">
+        <h3 th:text="#{tripForm.title}">Добавление поездки</h3>
+        <form action="/trips/save" method="post" th:object="${trip}" class="row g-3" onsubmit="return validateForm()">
             <div class="col-md-6">
                 <label for="routes" class="form-label" th:text="#{tripForm.routes}">Routes:</label>
-                <select id="routes" name="routeId" class="form-select">
+                <select id="routes" name="routeId" class="form-select custom-select-width" required>
                     <option th:each="route : ${routes}" th:value="${route.id}" th:text="${route.name}"></option>
                 </select>
             </div>
 
             <div class="col-md-6">
-                <label for="departureTime" class="form-label" th:text="#{tripForm.departureTime}">Departure time</label>
-                <input type="datetime-local" id="departureTime" name="departureTime" class="form-control">
-            </div>
-
-            <div class="col-md-6">
-                <label for="arrivalTime" class="form-label" th:text="#{tripForm.arrivalTime}">Arrival Time:</label>
-                <input type="datetime-local" id="arrivalTime" name="arrivalTime" class="form-control">
-            </div>
-
-            <div class="col-md-6">
                 <label for="assignedDriver" class="form-label" th:text="#{tripForm.driver}">Driver:</label>
-                <select id="assignedDriver" name="assignedDriverId" class="form-select">
+                <select id="assignedDriver" name="assignedDriverId" class="form-select custom-select-width" required>
                     <option value="">Select Driver</option>
                     <option th:each="driver : ${drivers}" th:value="${driver.id}"
                             th:text="${driver.firstname + ' ' + driver.lastname}"></option>
                 </select>
             </div>
+
             <div class="col-md-6">
-                <label for="cargoName" class="form-label" >Name:</label>
-                <input type="text" id="cargoName" name="cargoName" th:field="*{cargoName}" class="form-control">
+                <label for="departureTime" class="form-label" th:text="#{tripForm.departureTime}">Departure time</label>
+                <input type="datetime-local" id="departureTime" name="departureTime" class="form-control" required>
+            </div>
+
+            <div class="col-md-6">
+                <label for="arrivalTime" class="form-label" th:text="#{tripForm.arrivalTime}">Arrival Time:</label>
+                <input type="datetime-local" id="arrivalTime" name="arrivalTime" class="form-control" required>
+            </div>
+
+            <h5 th:text="#{tripForm.infoTitle}">Информация о товаре</h5>
+            <div class="col-md-6">
+                <label for="cargoName" class="form-label" th:text="#{tripForm.cargoName}">Cargo name:</label>
+                <input type="text" id="cargoName" name="cargoName" th:field="*{cargoName}" class="form-control" required>
             </div>
             <div class="col-md-6">
-                <label for="cargoDescription" class="form-label" >Cargo description:</label>
-                <input type="text" id="cargoDescription" name="cargoDescription" th:field="*{cargoDescription}" class="form-control">
+                <label for="cargoDescription" class="form-label" th:text="#{tripForm.cargoDescription}">Cargo
+                    description:</label>
+                <input type="text" id="cargoDescription" name="cargoDescription" th:field="*{cargoDescription}"
+                       class="form-control" required>
             </div>
             <div class="col-md-6">
-                <label for="cargoWeight" class="form-label" >Cargo weight:</label>
-                <input type="text" id="cargoWeight" name="cargoWeight" th:field="*{cargoWeight}" class="form-control">
+                <label for="cargoWeight" class="form-label" th:text="#{tripForm.cargoWeight}">Cargo weight:</label>
+                <input type="number" id="cargoWeight" name="cargoWeight" th:field="*{cargoWeight}" class="form-control" required>
             </div>
             <div class="col-md-6">
-                <label for="numberOfPallets" class="form-label" >Number of pallets:</label>
-                <input type="number" id="numberOfPallets" name="numberOfPallets" th:field="*{numberOfPallets}" class="form-control">
+                <label for="numberOfPallets" class="form-label" th:text="#{tripForm.numberOfPallets}">Number of
+                    pallets:</label>
+                <input type="number" id="numberOfPallets" name="numberOfPallets" th:field="*{numberOfPallets}"
+                       class="form-control" required>
             </div>
             <div class="col-md-6">
-                <label for="temperature" class="form-label" >Temperature:</label>
-                <input type="number" id="temperature" name="temperature" th:field="*{temperature}" class="form-control">
+                <label for="temperature" class="form-label" th:text="#{tripForm.temperature}">Temperature:</label>
+                <input type="number" id="temperature" name="temperature" th:field="*{temperature}" class="form-control" required>
             </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-success" th:text="#{tripForm.save}">Save</button>
+
+            <h5 th:text="#{tripForm.incomeTitle}">Доход от поездки</h5>
+            <div class="col-md-6">
+                <label for="incomeAmount" class="form-label" th:text="#{tripForm.incomeAmount}">Income amount:</label>
+                <input type="number" id="incomeAmount" name="incomeAmount" th:field="*{incomeAmount}"
+                       class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label for="incomeDescription" class="form-label" th:text="#{tripForm.incomeDescription}">Income
+                    description:</label>
+                <input type="text" id="incomeDescription" name="incomeDescription" th:field="*{incomeDescription}"
+                       class="form-control" required>
+            </div>
+
+            <div class="saveButton">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-success" style="border-radius: 55px; width: 120px; height:36px;" th:text="#{tripForm.save}">Save</button>
+                </div>
             </div>
         </form>
 
         <div class="col-12 mt-3">
-            <a th:href="@{/trips}" class="btn btn-secondary" th:text="#{tripForm.back}">Go back</a>
+            <a th:href="@{/trips/1}" class="btn btn-secondary" style="position: relative; bottom:52px; border-radius: 55px; width: 120px; height:36px;" th:text="#{tripForm.back}">Go back</a>
         </div>
+
     </section>
 </div>
-</body>
 
+<script>
+    function validateForm() {
+        var form = document.forms[0];
+        if (form.checkValidity()) {
+            return true;
+        } else {
+            form.reportValidity();
+            return false;
+        }
+    }
+</script>
+
+</body>
 </html>

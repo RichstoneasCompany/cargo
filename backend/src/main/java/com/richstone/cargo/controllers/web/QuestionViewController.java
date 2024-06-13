@@ -1,16 +1,12 @@
 package com.richstone.cargo.controllers.web;
 
 import com.richstone.cargo.dto.*;
-import com.richstone.cargo.mapper.TopicMapper;
 import com.richstone.cargo.model.Question;
 import com.richstone.cargo.model.Topic;
-import com.richstone.cargo.model.User;
-import com.richstone.cargo.repository.QuestionRepository;
-import com.richstone.cargo.repository.TopicRepository;
 import com.richstone.cargo.service.impl.QuestionServiceImpl;
 import com.richstone.cargo.service.impl.TopicServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +21,14 @@ public class QuestionViewController {
     private final QuestionServiceImpl questionService;
 
 
-    @GetMapping
-    public String topicsList(Model model) {
-        List<TopicRequestDto> topics = topicService.getAllTopics();
+    @GetMapping("/{pageNo}")
+    public String topicsList(@PathVariable(value = "pageNo") int pageNo, Model model) {
+        int pageSize = 10;
+        Page<TopicRequestDto> topics = topicService.getAllTopics(pageNo, pageSize);
         model.addAttribute("topics", topics);
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("totalPages", topics.getTotalPages());
+        model.addAttribute("pageSize", pageSize);
         return "topic-page";
     }
 
@@ -40,6 +40,7 @@ public class QuestionViewController {
         model.addAttribute("question", new QuestionAddDto());
         return "question-page";
     }
+
     @GetMapping("/formForAddQuestion")
     public String formForAddQuestion(Model model) {
         Question question = new Question();
@@ -50,13 +51,13 @@ public class QuestionViewController {
     @PostMapping("/addQuestion")
     public String addQuestion(@ModelAttribute("question") QuestionAddDto questionDto) {
         questionService.addQuestionToExistingTopic(questionDto);
-        return "redirect:/topics";
+        return "redirect:/topics/1";
     }
 
     @PostMapping("/save")
-    public String addDispatcher(@ModelAttribute("topic") TopicRequestDto topic) {
-       topicService.addTopic(topic);
-        return "redirect:/topics";
+    public String addTopic(@ModelAttribute("topic") TopicRequestDto topic) {
+        topicService.addTopic(topic);
+        return "redirect:/topics/1";
     }
 
     @GetMapping("/formForAddTopic")
@@ -65,10 +66,17 @@ public class QuestionViewController {
         model.addAttribute("topic", topic);
         return "topic-form";
     }
+
     @PostMapping("/delete")
-    public String deleteDispatcher(@RequestParam("topicId") Long id) {
+    public String deleteTopic(@RequestParam("topicId") Long id) {
         topicService.delete(id);
-        return "redirect:/topics";
+        return "redirect:/topics/1";
+    }
+
+    @PostMapping("/deleteQuestion")
+    public String deleteQuestion(@RequestParam("questionId") Long id) {
+        questionService.delete(id);
+        return "redirect:/topics/1";
     }
 
 }

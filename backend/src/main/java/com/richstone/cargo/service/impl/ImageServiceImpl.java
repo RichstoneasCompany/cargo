@@ -89,4 +89,18 @@ public class ImageServiceImpl {
         return image;
     }
 
+    public void uploadImageToDriver(MultipartFile file, Long id) throws IOException {
+        User user = userService.findById(id);
+        log.info("Uploading image profile to User {}", user.getUsername());
+
+        Image image = new Image();
+        image.setUserId(user.getId());
+        image.setImageBytes(compressBytes(file.getBytes(),getImageFormat(file)));
+        image.setName(file.getOriginalFilename());
+
+        imageRepository.findByUserId(user.getId()).ifPresent(imageRepository::delete);
+        log.info("Saving new profile image for User: {}", user.getUsername());
+        imageRepository.save(image);
+    }
+
 }

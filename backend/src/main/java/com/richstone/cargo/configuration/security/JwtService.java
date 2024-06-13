@@ -1,4 +1,4 @@
-package com.richstone.cargo.configuration;
+package com.richstone.cargo.configuration.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

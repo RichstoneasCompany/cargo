@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TopicRequestDto {
+    private Long id;
     @Schema(description = "Название темы", example = "География")
     private String name;
 }

@@ -1,4 +1,4 @@
-package com.richstone.cargo.configuration;
+package com.richstone.cargo.configuration.localization;
 
 
 import org.springframework.context.MessageSource;
@@ -14,7 +14,7 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import java.util.Locale;
 
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class WebMessageLocalizationConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

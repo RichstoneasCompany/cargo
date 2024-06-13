@@ -3,50 +3,82 @@
       layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title th:text="#{inactiveDrivers.title}">Title</title>
+    <style>
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination-container div {
+            margin: 0 5px;
+        }
+    </style>
 </head>
 <body>
 <div class="main-content container-fluid" layout:fragment="content">
     <div class="page-title">
-        <h3 th:text="#{inactiveDrivers.title}" >List of inactive drivers</h3>
+        <h3 th:text="#{inactiveDrivers.title}">List of inactive drivers</h3>
     </div>
     <section class="section">
-
         <div class="container mt-3">
-            <table class="table table-bordered">
-                <thead>
-                <tr>
-                    <th th:text="#{inactiveDrivers.username}" >Username</th>
-                    <th th:text="#{inactiveDrivers.firstname}" >First Name</th>
-                    <th th:text="#{inactiveDrivers.lastname}" >Last Name</th>
-                    <th th:text="#{inactiveDrivers.email}" >Email</th>
-                    <th th:text="#{inactiveDrivers.phone}" >Phone</th>
-                    <th th:text="#{inactiveDrivers.role}" >Role</th>
-                    <th th:text="#{inactiveDrivers.isActive}" >Is Active</th>
-                    <th th:text="#{inactiveDrivers.gender}">Gender</th>
-                    <th th:text="#{inactiveDrivers.birthDate}">Birth Date</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="user : ${drivers}">
-                    <td th:text="${user.username}"></td>
-                    <td th:text="${user.firstname}"></td>
-                    <td th:text="${user.lastname}"></td>
-                    <td th:text="${user.email}"></td>
-                    <td th:text="${user.phone}"></td>
-                    <td th:text="${user.role}"></td>
-                    <td th:text="${user.isEnabled}"></td>
-                    <td th:text="${user.gender}"></td>
-                    <td th:text="${user.birthDate}"></td>
-                    <td sec:authorize="hasAnyRole('DRIVER','ADMIN', 'DISPATCHER')">
-                        <a th:href="@{/drivers/formForUpdateDriver(id=${user.id})}"
-                           class="btn btn-warning btn-sm" th:text="#{inactiveDrivers.edit}" >Edit</a>
-                    </td>
-                    </td>
-                </tr>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th th:text="#{inactiveDrivers.username}">Username</th>
+                        <th th:text="#{inactiveDrivers.firstname}">First Name</th>
+                        <th th:text="#{inactiveDrivers.lastname}">Last Name</th>
+                        <th th:text="#{inactiveDrivers.email}">Email</th>
+                        <th th:text="#{inactiveDrivers.phone}">Phone</th>
+                        <th th:text="#{inactiveDrivers.role}">Role</th>
+                        <th th:text="#{inactiveDrivers.isActive}">Is Active</th>
+                        <th th:text="#{inactiveDrivers.gender}">Gender</th>
+                        <th th:text="#{inactiveDrivers.birthDate}">Birth Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${drivers}">
+                        <td th:text="${user.username}"></td>
+                        <td th:text="${user.firstname}"></td>
+                        <td th:text="${user.lastname}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td th:text="${user.phone}"></td>
+                        <td th:text="${user.role}"></td>
+                        <td th:text="${user.isEnabled}"></td>
+                        <td th:text="${user.gender}"></td>
+                        <td th:text="${user.birthDate}"></td>
+                        <td sec:authorize="hasAnyRole('DRIVER','ADMIN', 'DISPATCHER')">
+                            <a th:href="@{/drivers/formForUpdateDriver(id=${user.id})}"
+                               class="btn btn-warning btn-sm"
+                               style="margin-top: 5px; background-color: #071438; color: #fff; border-color: #071438"
+                               th:text="#{inactiveDrivers.edit}">Edit</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                </tbody>
-            </table>
+            <div th:if="${totalPages > 1}" class="pagination-container">
+                <div>
+                    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                        <a th:if="${currentPage != i}" th:href="@{'/drivers/inactiveDrivers/' + ${i}}">[[${i}]]</a>
+                        <span th:unless="${currentPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+                    </span>
+                </div>
+                <div>
+                    <a th:text="#{button.next}" th:if="${currentPage < totalPages}" th:href="@{'/drivers/inactiveDrivers/' + ${currentPage + 1}}">Next</a>
+                    <span th:text="#{button.next}" th:unless="${currentPage < totalPages}">Next</span>
+                </div>
+                <div>
+                    <a th:text="#{button.last}" th:if="${currentPage < totalPages}" th:href="@{'/drivers/inactiveDrivers/' + ${totalPages}}">Last</a>
+                    <span th:text="#{button.last}" th:unless="${currentPage < totalPages}">Last</span>
+                </div>
+            </div>
         </div>
     </section>
 </div>

@@ -1,7 +1,7 @@
 package com.richstone.cargo.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.richstone.cargo.configuration.JwtService;
+import com.richstone.cargo.configuration.security.JwtService;
 import com.richstone.cargo.dto.LoginDto;
 import com.richstone.cargo.dto.AuthenticationResponse;
 import com.richstone.cargo.model.Token;
@@ -115,7 +115,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
     }
 
-    public void changePassword(String newPassword,String confirmPassword, Principal connectedUser) {
+    public void changePassword(String newPassword, String confirmPassword, Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (!newPassword.equals(confirmPassword)) {
             throw new IllegalStateException("Password are not the same");

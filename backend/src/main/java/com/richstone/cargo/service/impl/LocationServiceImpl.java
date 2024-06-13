@@ -10,17 +10,23 @@ import com.richstone.cargo.repository.LocationRepository;
 import com.richstone.cargo.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class LocationServiceImpl implements LocationService {
-    private static final String API_KEY = "622786fb-36bc-431e-8a2f-828b71dac7a9";
+    @Value("${api.yandex.key}")
+    private String API_KEY;
     private final CoordinatesRepository coordinatesRepository;
     private final LocationRepository locationRepository;
 
@@ -42,6 +48,13 @@ public class LocationServiceImpl implements LocationService {
 
             JsonNode addressNode = jsonNode.at("/response/GeoObjectCollection/featureMember/0/GeoObject/metaDataProperty/GeocoderMetaData/Address/formatted");
             String formattedAddress = addressNode.asText();
+
+            Optional<Coordinates> existingCoordinatesOptional = coordinatesRepository.findByLatitudeAndLongitude(latitude, longitude);
+
+            if (existingCoordinatesOptional.isPresent()) {
+                log.info("Location with the same coordinates already exists. Skipping save operation.");
+                return;
+            }
 
             Coordinates coords = new Coordinates();
             coords.setLatitude(latitude);
@@ -83,5 +96,14 @@ public class LocationServiceImpl implements LocationService {
         locationRepository.delete(location);
         log.info("Location deleted successfully: {}", location.getName());
     }
+
+    public Page<Location> getAllLocation(int pageNo, int pageSize) {
+        log.info("Fetching locations for page number: {} with page size: {}", pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<Location> locations = locationRepository.findAll(pageable);
+        log.info("Fetched {} locations", locations.getNumberOfElements());
+        return locations;
+    }
+
 
 }

@@ -8,6 +8,20 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination-container div {
+            margin: 0 5px;
+        }
+    </style>
 </head>
 <body>
 <div class="main-content container-fluid" layout:fragment="content">
@@ -15,20 +29,25 @@
     <section class="section">
         <div class="container mt-3">
             <h3 th:text="#{topicList.title}">Help</h3>
-            <a th:href="@{/topics/formForAddTopic}" class="btn btn-primary mb-2"
+            <a th:href="@{/topics/formForAddTopic}" class="btn btn-primary mb-2" style="margin-top: 5px; background-color: #071438;
+        color: #fff;border-color: #ffffff"
                sec:authorize="hasAnyRole('ADMIN', 'DISPATCHER')" th:text="#{topicList.add}">Add topic</a>
             <table class="table table-bordered">
                 <thead>
                 <tr>
                     <th th:text="#{topicList.name}">Name</th>
+                    <th th:text="#{topicList.action}">Action</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="topic : ${topics}">
                     <td>
-                        <a th:href="@{'topics/'+ ${topic.id} + '/questions'}" th:text="${topic.name}"></a>
+                        <a th:href="@{'/topics/'+ ${topic.id} + '/questions'}" th:text="${topic.name}"></a>
+                    </td>
+                    <td>
                         <form th:action="@{/topics/delete(topicId=${topic.id})}" method="post">
-                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                            <button type="submit" class="btn btn-danger btn-sm" style="margin-top: 5px; background-color: #071438;
+        color: #fff;border-color: #ffffff"  th:text="#{topicList.remove}">Remove</button>
                         </form>
                     </td>
 
@@ -37,6 +56,22 @@
             </table>
         </div>
     </section>
+    <div th:if="${totalPages > 1}" class="pagination-container">
+        <div>
+                    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                        <a th:if="${currentPage != i}" th:href="@{'/topics/' + ${i}}">[[${i}]]</a>
+                        <span th:unless="${currentPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+                    </span>
+        </div>
+        <div>
+            <a th:text="#{button.next}" th:if="${currentPage < totalPages}" th:href="@{'/topics/' + ${currentPage + 1}}">Next</a>
+            <span th:text="#{button.next}" th:unless="${currentPage < totalPages}">Next</span>
+        </div>
+        <div>
+            <a th:text="#{button.last}" th:if="${currentPage < totalPages}" th:href="@{'/topics/' + ${totalPages}}">Last</a>
+            <span th:text="#{button.last}" th:unless="${currentPage < totalPages}">Last</span>
+        </div>
+    </div>
 </div>
 </body>
 </html>

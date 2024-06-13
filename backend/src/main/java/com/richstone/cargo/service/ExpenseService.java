@@ -1,11 +1,10 @@
 package com.richstone.cargo.service;
 
 import com.richstone.cargo.model.Expense;
+import com.richstone.cargo.model.types.ExpenseType;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface ExpenseService {
-    List<Expense> findExpensesByTripIds(List<Long> tripId);
+    List<Expense> findFinesByTripIds(List<Long> tripId, ExpenseType expenseType);
 }

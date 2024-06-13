@@ -4,15 +4,34 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination-container div {
+            margin: 0 5px;
+        }
+
+    </style>
 </head>
 <body>
 <div class="main-content container-fluid" layout:fragment="content">
     <div class="page-title">
-        <h3 >History of drivers</h3>
+        <h3 th:text="#{deletedDriversPage.title}" >History of drivers</h3>
     </div>
     <section class="section">
 
         <div class="container mt-3">
+            <div class="table-responsive">
             <table class="table table-bordered">
                 <thead>
                 <tr>
@@ -23,8 +42,8 @@
                     <th th:text="#{inactiveDrivers.phone}" >Phone</th>
                     <th th:text="#{inactiveDrivers.role}" >Role</th>
                     <th th:text="#{inactiveDrivers.isActive}" >Is Active</th>
-                    <th  >Gender</th>
-                    <th  >Birth Date</th>
+                    <th  th:text="#{inactiveDrivers.gender}">Gender</th>
+                    <th  th:text="#{inactiveDrivers.birthDate}">Birth Date</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -40,8 +59,16 @@
                     <td th:text="${user.birthDate}"></td>
                     <td sec:authorize="hasRole('ADMIN')">
 
+                        <form th:action="@{/drivers/delete(userId=${user.id})}" method="post">
+                            <button type="submit" class="btn btn-warning btn-sm" style="margin-top: 5px; background-color: #071438;
+        color: #fff;border-color: #ffffff" th:text="#{dispatchersList.remove}">Remove</button>
+                        </form>
+                    </td>
+                    <td sec:authorize="hasRole('ADMIN')">
+
                         <form th:action="@{/drivers/undelete(userId=${user.id})}" method="post">
-                            <button type="submit" class="btn btn-danger btn-sm" style="margin-top: 5px;" th:text="#{dispatchersList.remove}">Remove</button>
+                            <button type="submit" class="btn btn-warning btn-sm" style="margin-top: 5px; background-color: #071438;
+        color: #fff;border-color: #ffffff" th:text="#{deletedDriversPage.restore}">Remove</button>
                         </form>
                     </td>
                 </tr>
@@ -49,8 +76,25 @@
 
                 </tbody>
             </table>
+            </div>
         </div>
     </section>
+    <div th:if="${totalPages > 1}" class="pagination-container">
+        <div>
+                    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                        <a th:if="${currentPage != i}" th:href="@{'/drivers/deletedDrivers/' + ${i}}">[[${i}]]</a>
+                        <span th:unless="${currentPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+                    </span>
+        </div>
+        <div>
+            <a th:text="#{button.next}" th:if="${currentPage < totalPages}" th:href="@{'/drivers/deletedDrivers/' + ${currentPage + 1}}">Next</a>
+            <span th:text="#{button.next}" th:unless="${currentPage < totalPages}">Next</span>
+        </div>
+        <div>
+            <a th:text="#{button.last}" th:if="${currentPage < totalPages}" th:href="@{'/drivers/deletedDrivers/' + ${totalPages}}">Last</a>
+            <span th:text="#{button.last}" th:unless="${currentPage < totalPages}">Last</span>
+        </div>
+    </div>
 </div>
 </body>
 </html>

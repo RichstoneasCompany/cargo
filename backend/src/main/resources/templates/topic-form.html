@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <title th:text="#{topicForm.title}">Title</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+    </style>
 </head>
 <body>
 
@@ -25,7 +30,7 @@
         </form>
 
         <div class="col-12 mt-3">
-            <a th:href="@{/topics}" class="btn btn-secondary" th:text="#{topicForm.back}">Go back</a>
+            <a th:href="@{/topics/1}" class="btn btn-secondary" th:text="#{topicForm.back}">Go back</a>
         </div>
     </section>
 </div>

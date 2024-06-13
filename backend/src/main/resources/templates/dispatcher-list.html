@@ -3,7 +3,21 @@
       layout:decorate="~{layouts/dashboard}" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title th:text="#{dispatchersList.title}">Title</title>
+    <style>
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination-container div {
+            margin: 0 5px;
+        }
+    </style>
 </head>
 <body>
 <div class="main-content container-fluid" layout:fragment="content">
@@ -11,7 +25,7 @@
         <h3 th:text="#{dispatchersList.title}" >List of dispatchers</h3>
     </div>
     <section class="section">
-
+        <div class="table-responsive">
         <div class="container mt-3">
             <a th:href="@{/dispatchers/formForAddDispatcher}" class="btn btn-primary mb-2"
                sec:authorize="hasAnyRole('ADMIN')" th:text="#{dispatchersList.add}" >Add dispatcher</a>
@@ -32,8 +46,9 @@
                 </thead>
                 <tbody>
                 <tr th:each="user : ${dispatchers}">
-                    <td th:text="${user.id}"></td>
-                    <td th:text="${user.username}"></td>
+                    <td>
+                        <a th:href="@{/dispatchers/details/{id}(id=${user.id})}" th:text="${user.username}" ></a>
+                    </td>
                     <td th:text="${user.firstname}"></td>
                     <td th:text="${user.lastname}"></td>
                     <td th:text="${user.email}"></td>
@@ -42,12 +57,12 @@
                     <td th:text="${user.isEnabled}"></td>
                     <td sec:authorize="hasRole('ADMIN')">
                         <form th:action="@{/dispatchers/delete(userId=${user.id})}" method="post">
-                            <button type="submit" class="btn btn-danger btn-sm" style="margin-top: 5px;" th:text="#{dispatchersList.remove}">Remove</button>
+                            <button type="submit" class="btn btn-danger btn-sm"  style="margin-top: 5px; background-color: #071438; color: #fff; border-color: #071438" th:text="#{dispatchersList.remove}">Remove</button>
                         </form>
                     </td>
                     <td sec:authorize="hasAnyRole('ADMIN')">
                         <a th:href="@{/dispatchers/formForUpdateDispatcher(id=${user.id})}"
-                           class="btn btn-warning btn-sm" th:text="#{inactiveDrivers.edit}" >Edit</a>
+                           class="btn btn-warning btn-sm"  style="margin-top: 5px; background-color: #071438; color: #fff; border-color: #071438" th:text="#{inactiveDrivers.edit}" >Edit</a>
                     </td>
                     </td>
                 </tr>
@@ -55,7 +70,24 @@
                 </tbody>
             </table>
         </div>
+        </div>
     </section>
+    <div th:if="${totalPages > 1}" class="pagination-container">
+        <div>
+                    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                        <a th:if="${currentPage != i}" th:href="@{'/dispatchers/' + ${i}}">[[${i}]]</a>
+                        <span th:unless="${currentPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+                    </span>
+        </div>
+        <div>
+            <a th:text="#{button.next}" th:if="${currentPage < totalPages}" th:href="@{'/dispatchers/' + ${currentPage + 1}}">Next</a>
+            <span th:text="#{button.next}" th:unless="${currentPage < totalPages}">Next</span>
+        </div>
+        <div>
+            <a th:text="#{button.last}" th:if="${currentPage < totalPages}" th:href="@{'/dispatchers/' + ${totalPages}}">Last</a>
+            <span th:text="#{button.last}" th:unless="${currentPage < totalPages}">Last</span>
+        </div>
+    </div>
 </div>
 </body>
 </html>

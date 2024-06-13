@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <title th:text="#{tripUpdateForm.title}">Title</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <style>
+        .h4, h4 {
+            font-size: 1.35rem;
+        }
+    </style>
 </head>
 <body>
 
@@ -75,6 +80,27 @@
                 <td>Phone:</td>
                 <td th:text="${driver.phone}"></td>
             </tr>
+            <tr>
+                <td>Cargo name:</td>
+                <td th:text="${cargo.name}"></td>
+            </tr>
+            <tr>
+                <td>Description:</td>
+                <td th:text="${cargo.description}"></td>
+            </tr>
+            <tr>
+                <td>Number of pallets:</td>
+                <td th:text="${cargo.numberOfPallets}"></td>
+            </tr>
+            <tr>
+                <td>Weight:</td>
+                <td th:text="${cargo.weight}"></td>
+            </tr>
+            <tr>
+                <td>Temperature:</td>
+                <td th:text="${cargo.temperature}"></td>
+            </tr>
+
             </tbody>
         </table>
 
@@ -107,7 +133,7 @@
 
 
         <div class="col-12 mt-3">
-            <a th:href="@{/trips}" class="btn btn-secondary" th:text="#{tripUpdateForm.back}">Go back</a>
+            <a th:href="@{/trips/1}" class="btn btn-secondary" th:text="#{tripUpdateForm.back}">Go back</a>
         </div>
     </section>
 </div>

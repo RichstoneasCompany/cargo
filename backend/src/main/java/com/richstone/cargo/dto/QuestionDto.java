@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuestionDto {
+    @Schema(description = "Идентификатор вопроса")
+    private Long id;
     @Schema(description = "Текст вопроса", example = "What is the largest planet?")
     private String question;
 

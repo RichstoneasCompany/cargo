@@ -1,4 +1,4 @@
-package com.richstone.cargo.configuration;
+package com.richstone.cargo.configuration.security;
 
 import com.richstone.cargo.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
