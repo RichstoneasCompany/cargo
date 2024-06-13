@@ -56,7 +56,7 @@ fun NotificationScreen(navController: NavController) {
         },
         bottomBar = {
             CargoBottomBar(
-                selectedRoute = Screen.TripInfoScreen.route,
+                selectedRoute = Screen.NotificationScreen.route,
                 navController = navController
             )
         }

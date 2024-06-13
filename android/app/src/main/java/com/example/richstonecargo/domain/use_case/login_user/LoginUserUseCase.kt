@@ -17,10 +17,17 @@ class LoginUserUseCase @Inject constructor(
             Log.d("LoginUserUseCase.loginUser", "$phoneNumber")
             emit(Resource.Loading<UserInfo>())
             val user = repository.loginUser(phoneNumber, password)
+            try {
+                val profilePictureResult = repository.getUserProfilePicture()
+                user.profilePicture = profilePictureResult.imageBytes
+            } catch (e: Error) {
+                Log.e("profilePictureResult", "Error: ${e.message}")
+            }
+
             Log.d("LoginUserUseCase.loginUser received response", "$user")
             emit(Resource.Success<UserInfo>(user))
         } catch (e: IOException) {
-            emit(Resource.Error<UserInfo>("Could not reach the server. Please check your internet connection."))
+            emit(Resource.Error<UserInfo>("${e.message}"))
         }
     }
 }

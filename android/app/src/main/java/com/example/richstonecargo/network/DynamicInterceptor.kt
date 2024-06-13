@@ -14,7 +14,7 @@ object DynamicInterceptor : Interceptor {
             builder.addHeader("Authorization", "Bearer $it")
         }
 
-        Log.d("DynamicInterceptor", "$token")
+        Log.d("DynamicInterceptor", "Set new token: $token")
 
         return chain.proceed(builder.build())
     }

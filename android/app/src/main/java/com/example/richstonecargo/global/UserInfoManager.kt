@@ -7,6 +7,7 @@ object UserInfoManager {
     private var userInfo: UserInfo? = null
     private var phone: String? = null
     private var otpCode: String? = null
+    private var deviceToken: String? = null
 
     fun setPhone(phone: String) {
         this.phone = phone
@@ -29,4 +30,10 @@ object UserInfoManager {
     fun clearUserInfo() {
         userInfo = null
     }
+
+    fun setDeviceToken(token: String?) {
+        deviceToken = token
+    }
+
+    fun getDeviceToken(): String? = deviceToken
 }

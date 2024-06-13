@@ -23,29 +23,46 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.richstonecargo.R
+import com.example.richstonecargo.domain.model.TruckInfo
+import com.example.richstonecargo.global.UserInfoManager
 import com.example.richstonecargo.presentation.Screen
 import com.example.richstonecargo.presentation.layout.CargoBottomBar
 import com.example.richstonecargo.presentation.layout.CargoTopBar
+import com.example.richstonecargo.presentation.util.DateComponent
+import com.example.richstonecargo.presentation.util.base64ToBitmap
+import com.example.richstonecargo.presentation.util.extractDateComponent
 
 @Composable
 fun ProfileScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val primaryColor = Color(0xFF0A0E21)
     val cardBackgroundColor = Color(0xFF364156)
     val currentRoute = Screen.TripListScreen.route
 
+    val state = viewModel.state.value
+
+    val profilePicture = remember {
+        UserInfoManager.getUserInfo()?.profilePicture?.let {
+            base64ToBitmap(it)
+        }
+    }
     Scaffold(
         modifier = Modifier.background(primaryColor),
         topBar = {
@@ -70,13 +87,33 @@ fun ProfileScreen(
         ) {
             ProfileTitle()
             ProfileHeaderWithInformation(
-                name = "Мираc",
-                surname = "Тлегенов",
-                birthDate = "16 Декабрь 2002",
-                gender = "Мужской"
+                name = state.profileDetails?.firstname ?: "",
+                surname = state.profileDetails?.lastname ?: "",
+                birthDate = "${
+                    state.profileDetails?.birthDate?.let {
+                        extractDateComponent(
+                            it,
+                            DateComponent.DAY
+                        )
+                    }
+                } ${
+                    state.profileDetails?.birthDate?.let {
+                        extractDateComponent(
+                            it, DateComponent.MONTH_NAME
+                        ).replaceFirstChar(Char::titlecase)
+                    }
+                } ${
+                    state.profileDetails?.birthDate?.let {
+                        extractDateComponent(
+                            it, DateComponent.YEAR
+                        )
+                    }
+                }",
+                gender = state.profileDetails?.gender?.displayName ?: "",
+                profilePicture = profilePicture
             )
             TextBetween()
-            TransportCard()
+            TransportCard(state.profileDetails?.truckInfo)
         }
     }
 }
@@ -94,7 +131,7 @@ fun ProfileTitle() {
 }
 
 @Composable
-fun ProfileHeaderWithInformation(name: String, surname: String, birthDate: String, gender: String) {
+fun ProfileHeaderWithInformation(name: String, surname: String, birthDate: String, gender: String, profilePicture: android.graphics.Bitmap?) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -108,12 +145,21 @@ fun ProfileHeaderWithInformation(name: String, surname: String, birthDate: Strin
             shape = CircleShape,
             color = MaterialTheme.colors.onSurface.copy(alpha = 0f)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.kz),
-                contentDescription = "Profile Picture",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
+            if (profilePicture != null) {
+                Image(
+                    bitmap = profilePicture.asImageBitmap(),
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.kz),
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
         Spacer(Modifier.width(60.dp))
         ProfileInformationSection(name, surname, birthDate, gender)
@@ -125,12 +171,11 @@ fun ProfileInformationSection(name: String, surname: String, birthDate: String, 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 8.dp)
+            modifier = Modifier.weight(1f)
         ) {
             ProfileInformation(label = "Имя", value = name)
             Spacer(modifier = Modifier.height(18.dp))
@@ -144,10 +189,10 @@ fun ProfileInformationSection(name: String, surname: String, birthDate: String, 
             BirthDateRow(birthDate)
         }
 
+        Spacer(modifier = Modifier.width(16.dp))
+
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 8.dp)
+            modifier = Modifier.weight(1f)
         ) {
             ProfileInformation(label = "Фамилия", value = surname)
             Spacer(modifier = Modifier.height(18.dp))
@@ -197,40 +242,44 @@ fun BirthDateRow(birthDate: String) {
 
 @Composable
 fun ProfileInformation(label: String, value: String) {
-    Text(
-        text = label,
-        style = MaterialTheme.typography.caption,
-        fontSize = 18.sp,
-        color = Color.White,
-        modifier = Modifier.padding(2.dp)
-    )
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth(0.9f)
-            .height(56.dp)
-            .padding(vertical = 4.dp),
-        color = Color(0xFF364156),
-        shape = RoundedCornerShape(12.dp),
-        elevation = 4.dp
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
+        Text(
+            text = label,
+            style = MaterialTheme.typography.caption,
+            fontSize = 18.sp,
+            color = Color.White,
+            modifier = Modifier.padding(2.dp)
+        )
+        Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth(1f)
+                .height(56.dp)
+                .padding(vertical = 4.dp),
+            color = Color(0xFF364156),
+            shape = RoundedCornerShape(12.dp),
+            elevation = 4.dp
         ) {
-            Text(
-                text = value,
-                color = Color.White,
-                fontSize = 14.sp,
-                style = MaterialTheme.typography.body2,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = value,
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
-
 
 @Composable
 fun TextBetween() {
@@ -247,7 +296,7 @@ fun TextBetween() {
 }
 
 @Composable
-fun TransportCard() {
+fun TransportCard(truckInfo: TruckInfo?) {
     Card(
         backgroundColor = Color(0xFF364156),
         shape = MaterialTheme.shapes.medium,
@@ -257,9 +306,13 @@ fun TransportCard() {
         elevation = 8.dp
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            TransportInformation("Марка:", "Foton Aumark BJ 1039")
-            TransportInformation("Номер:", "999ZZZ")
-            TransportInformation("Грузоподъемность тон:", "1.5Т")
+            if (truckInfo == null) {
+                Text(text = "Грузовик не присвоен")
+            } else {
+                TransportInformation("Марка:", truckInfo.model)
+                TransportInformation("Номер:", truckInfo.numberPlate)
+                TransportInformation("Грузоподъемность тон:", truckInfo.maxPermMass)
+            }
         }
     }
 }
@@ -294,4 +347,3 @@ fun TransportInformation(label: String, value: String) {
         )
     }
 }
-

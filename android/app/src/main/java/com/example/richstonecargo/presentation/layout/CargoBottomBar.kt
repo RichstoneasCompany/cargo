@@ -25,24 +25,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.richstonecargo.R
+import com.example.richstonecargo.presentation.Screen
 
 
 @Composable
 fun CargoBottomBar(selectedRoute: String, navController: NavController) {
     val widthMapping = mapOf(
-        "trip_info_screen" to 1f,
-        "trip_list_screen" to 1f,
-        "calculation_list_screen" to 1f,
-        "dispatcher_screen" to 1f,
-        "help_screen" to 0.3f
+        Screen.ActiveTripScreen.route to 1f,
+        Screen.TripListScreen.route to 1f,
+        Screen.CalculationListScreen.route to 1f,
+        Screen.DispatcherScreen.route to 1f,
+        Screen.HelpScreen.route to 0.3f
     )
 
     val nameMapping = mapOf(
-        "trip_info_screen" to "Текущий рейс",
-        "trip_list_screen" to "Расписание рейсов",
-        "calculation_list_screen" to "Расчетный лист",
-        "dispatcher_screen" to "Связь с диспетчером",
-        "help_screen" to "Помощь"
+        Screen.ActiveTripScreen.route to "Текущий рейс",
+        Screen.TripListScreen.route to "Расписание рейсов",
+        Screen.CalculationListScreen.route to "Расчетный лист",
+        Screen.DispatcherScreen.route to "Связь с диспетчером",
+        Screen.HelpScreen.route to "Помощь"
     )
 
     BottomAppBar(
@@ -55,7 +56,6 @@ fun CargoBottomBar(selectedRoute: String, navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .size(100.dp),
-//                .padding(vertical = 1.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -75,7 +75,6 @@ fun CargoBottomBar(selectedRoute: String, navController: NavController) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 10.dp)
-//
                     ) {
                         if (name == "Помощь") {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -83,12 +82,10 @@ fun CargoBottomBar(selectedRoute: String, navController: NavController) {
                                     painter = painterResource(id = R.drawable.help),
                                     contentDescription = "Help Icon",
                                     modifier = Modifier.size(28.dp),
-//                                    tint = if (isSelected) Color.White else Color.Gray
                                 )
                                 Text(
                                     text = name,
                                     fontSize = 8.sp,
-//                                    color = if (isSelected) Color.White else Color.Gray,
                                     textAlign = TextAlign.Center
                                 )
                             }
@@ -96,7 +93,6 @@ fun CargoBottomBar(selectedRoute: String, navController: NavController) {
                             Text(
                                 text = name,
                                 fontSize = 16.sp,
-//                                color = if (isSelected) Color.White else Color.Gray,
                                 textAlign = TextAlign.Center
                             )
                         }

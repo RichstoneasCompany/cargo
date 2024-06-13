@@ -1,5 +1,7 @@
 package com.example.richstonecargo.presentation.calculation_list
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
@@ -25,6 +28,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,20 +49,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Popup
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.richstonecargo.R
+import com.example.richstonecargo.domain.model.SalaryInfo
 import com.example.richstonecargo.presentation.Screen
 import com.example.richstonecargo.presentation.layout.CargoBottomBar
 import com.example.richstonecargo.presentation.layout.CargoTopBar
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.math.roundToInt
 
 
+@RequiresApi(Build.VERSION_CODES.O)
+fun formatMonthYear(yearMonth: String): String {
+    val date = YearMonth.parse(yearMonth, DateTimeFormatter.ofPattern("yyyy-MM"))
+    val formattedMonthYear = date.format(DateTimeFormatter.ofPattern("LLLL yyyy", Locale("ru")))
+    return formattedMonthYear.replaceFirstChar { it.uppercase() }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalculationListScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: CalculationListViewModel = hiltViewModel()
 ) {
     val primaryColor = Color(0xFF0A0E21)
-
+    val salaryInfo by viewModel.salaryInfo.collectAsState()
+    val availableMonths by viewModel.availableMonths.collectAsState()
+    var selectedYearMonth by remember { mutableStateOf(availableMonths[0]) }
 
     Scaffold(
         modifier = Modifier.background(primaryColor),
@@ -66,7 +86,6 @@ fun CalculationListScreen(
             CargoTopBar(navController = navController)
         },
         bottomBar = {
-
             CargoBottomBar(
                 selectedRoute = Screen.CalculationListScreen.route,
                 navController = navController
@@ -80,13 +99,33 @@ fun CalculationListScreen(
                 .background(primaryColor),
             contentAlignment = Alignment.Center
         ) {
-            LargeCard(navController = navController)
+            if (availableMonths.isEmpty()) {
+                CircularProgressIndicator(color = Color.White)
+            } else {
+                LargeCard(
+                    navController = navController,
+                    salaryInfo = salaryInfo,
+                    availableMonths = availableMonths,
+                    onPeriodSelected = { month ->
+                        viewModel.fetchSalaryInfo(month)
+                        selectedYearMonth = month
+                    },
+                    selectedYearMonth = selectedYearMonth
+                )
+            }
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun LargeCard(navController: NavController) {
+fun LargeCard(
+    navController: NavController,
+    salaryInfo: SalaryInfo?,
+    availableMonths: List<String>,
+    onPeriodSelected: (String) -> Unit,
+    selectedYearMonth: String
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -95,12 +134,25 @@ fun LargeCard(navController: NavController) {
         shape = RoundedCornerShape(16.dp),
         backgroundColor = Color(0xFF364156)
     ) {
-        ContentCard(navController = navController)
+        ContentCard(
+            navController = navController,
+            salaryInfo = salaryInfo,
+            availableMonths = availableMonths,
+            onPeriodSelected = onPeriodSelected,
+            selectedYearMonth = selectedYearMonth
+        )
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ContentCard(navController: NavController) {
+fun ContentCard(
+    navController: NavController,
+    salaryInfo: SalaryInfo?,
+    availableMonths: List<String>,
+    onPeriodSelected: (String) -> Unit,
+    selectedYearMonth: String
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -121,31 +173,29 @@ fun ContentCard(navController: NavController) {
                 modifier = Modifier.padding(bottom = 2.dp)
             )
             Spacer(modifier = Modifier.width(250.dp))
-            PeriodDropdown()
+            PeriodDropdown(items = availableMonths, onPeriodSelected = onPeriodSelected)
         }
 
         Spacer(Modifier.weight(1f))
 
         SalaryItem(label = "Оклад по рейсам",
-            value = "200000 тг",
+            value = salaryInfo?.baseSalary?.toString() ?: "Загрузка...",
             showEditButton = true,
-            onEditClick = { navController.navigate("trip_salary_screen") }
-        )
-        SalaryItem(label = "Премия", value = "70000 тг")
-        SalaryItem(label = "НДФЛ", value = "30000 тг")
-        SalaryItem(label = "Штраф", value = "20000 тг")
+            onEditClick = { navController.navigate("${Screen.TripSalaryScreen.route}/${selectedYearMonth}") })
+        SalaryItem(label = "Премия", value = salaryInfo?.bonuses?.toString() ?: "Загрузка...")
+        SalaryItem(label = "НДФЛ", value = salaryInfo?.incomeTax?.toString() ?: "Загрузка...")
+        SalaryItem(label = "Штраф", value = salaryInfo?.fine?.toString() ?: "Загрузка...")
 
         Spacer(Modifier.weight(2f))
 
-        TotalToBePaidItem(total = "220000 тг")
+        TotalToBePaidItem(total = salaryInfo?.totalPay?.toString() ?: "Загрузка...")
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PeriodDropdown() {
+fun PeriodDropdown(items: List<String>, onPeriodSelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val items =
-        listOf("Январь 2024", "Февраль 2024", "Март 2024", "Апрель 2024", "Май 2024", "Июнь 2024")
     var selectedIndex by remember { mutableStateOf(0) }
     val buttonSize = remember { mutableStateOf(Size.Zero) }
 
@@ -167,7 +217,7 @@ fun PeriodDropdown() {
         ) {
             Spacer(Modifier.weight(0.2f))
             Text(
-                text = items[selectedIndex],
+                text = if (items.isNotEmpty()) formatMonthYear(items[selectedIndex]) else "Выберите",
                 color = Color(0xFF0066FF),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -193,11 +243,13 @@ fun PeriodDropdown() {
             onItemSelected = { index ->
                 selectedIndex = index
                 expanded = false
+                onPeriodSelected(items[index])
             }
         )
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DropdownPopup(
     expanded: Boolean,
@@ -225,7 +277,7 @@ fun DropdownPopup(
                 items(items.size) { index ->
                     val backgroundColor =
                         if (selectedIndex == index) Color(0xFF0066FF) else Color(0xFF364156)
-                    val item = items[index]
+                    val item = formatMonthYear(items[index])
                     DropdownMenuItem(
                         onClick = {
                             onItemSelected(index)
@@ -310,7 +362,6 @@ fun SalaryItem(
     }
 }
 
-
 @Composable
 fun TotalToBePaidItem(total: String) {
     Row(
@@ -339,8 +390,3 @@ fun TotalToBePaidItem(total: String) {
         Spacer(Modifier.weight(1f))
     }
 }
-
-
-
-
-

@@ -15,7 +15,7 @@ class ReceiveRegistrationOtpUseCase @Inject constructor(
         try {
             Log.d("ReceiveRegistrationOtpUseCase", "Sending password to: $phoneNumber")
             emit(Resource.Loading<Unit>())
-            val result = repository.receiveRegistrationOtp(phoneNumber)
+            val result = repository.sendOtp(phoneNumber)
             Log.d("ReceiveRegistrationOtpUseCase", "Received response: $result")
             emit(Resource.Success(Unit))
         } catch (e: IOException) {

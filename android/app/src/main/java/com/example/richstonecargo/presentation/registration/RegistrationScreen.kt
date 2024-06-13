@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
@@ -38,12 +39,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.richstonecargo.common.Resource
 import com.example.richstonecargo.presentation.Screen
+import com.example.richstonecargo.presentation.layout.CargoTopBarWithoutProfile
 
 @Composable
 fun RegistrationScreen(
@@ -67,6 +70,7 @@ fun RegistrationScreen(
 
     Scaffold(
         modifier = Modifier.background(Color(0xFF0A0E21)),
+        topBar = { CargoTopBarWithoutProfile() }
     ) { innerPadding ->
         Box(
             contentAlignment = Alignment.Center,
@@ -156,6 +160,7 @@ fun RegistrationMobileNumberField(value: String, onValueChange: (String) -> Unit
             value = value,
             onValueChange = onValueChange,
             label = { Text("Мобильный номер", color = Color.White) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 textColor = Color.White,
                 backgroundColor = Color.Transparent,

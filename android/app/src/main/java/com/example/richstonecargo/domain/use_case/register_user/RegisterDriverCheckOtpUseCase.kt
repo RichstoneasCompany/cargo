@@ -8,18 +8,18 @@ import kotlinx.coroutines.flow.flow
 import java.io.IOException
 import javax.inject.Inject
 
-class SendRegistrationOtpUseCase @Inject constructor(
+class RegisterDriverCheckOtpUseCase @Inject constructor(
     private val repository: CargoRepository
 ) {
-    operator fun invoke(phoneNumber: String, otp: String): Flow<Resource<Unit>> = flow {
+    operator fun invoke(otp: String): Flow<Resource<Unit>> = flow {
         try {
-            Log.d("SendRegistrationOtpUseCase", "Sending password to: $phoneNumber")
+            Log.d("RegisterDriverCheckOtpUseCase", "Sending otp $otp")
             emit(Resource.Loading<Unit>())
-            val result = repository.sendRegistrationOtp(phoneNumber, otp)
-            Log.d("SendRegistrationOtpUseCase", "Received response: $result")
+            val result = repository.registerDriverCheckOtp(otp)
+            Log.d("RegisterDriverCheckOtpUseCase", "Received response: $result")
             emit(Resource.Success(Unit))
         } catch (e: IOException) {
-            Log.e("SendRegistrationOtpUseCase", "Failed to send registration otp: ${e.message}")
+            Log.e("RegisterDriverCheckOtpUseCase", "Failed to send registration otp: ${e.message}")
             emit(Resource.Error<Unit>("Could not reach the server. Please check your internet connection."))
         }
     }

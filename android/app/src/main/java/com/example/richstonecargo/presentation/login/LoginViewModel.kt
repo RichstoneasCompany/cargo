@@ -36,6 +36,7 @@ class LoginViewModel @Inject constructor(
     val navigationCommands: LiveData<Event<NavigationCommand>> = navigationManager.commands
 
     fun login(phone: String, password: String) {
+        DynamicInterceptor.token = null
         viewModelScope.launch {
             loginUserUseCase(phone, password)
                 .onStart {
@@ -49,11 +50,9 @@ class LoginViewModel @Inject constructor(
 
                         is Resource.Success -> {
                             _state.value = LoginUserState(userInfo = result.data)
-                            if (result.data?.access_token == null) throw Exception("no access token found")
-                            DynamicInterceptor.token = "new_access_token"
-                            UserInfoManager.setUserInfo(result.data)
+                            result.data?.let { UserInfoManager.setUserInfo(it) }
                             Log.d("LoginSuccess", "User logged in successfully.")
-                            navigationManager.navigate(NavigationCommand.ToDestination(Screen.TripInfoScreen.route))
+                            navigationManager.navigate(NavigationCommand.ToDestination(Screen.ActiveTripScreen.route))
                         }
 
                         is Resource.Error -> {

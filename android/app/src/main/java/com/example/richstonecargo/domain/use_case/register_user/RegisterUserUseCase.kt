@@ -15,7 +15,7 @@ class RegisterUserUseCase @Inject constructor(
         try {
             Log.d("RegisterUserUseCase", "Registering $phoneNumber $password")
             emit(Resource.Loading<Unit>())
-            val result = repository.registerUser(phoneNumber, password)
+            val result = repository.registerDriver(phoneNumber, password)
             Log.d("RegisterUserUseCase", "Received response: $result")
             emit(Resource.Success(Unit))
         } catch (e: IOException) {

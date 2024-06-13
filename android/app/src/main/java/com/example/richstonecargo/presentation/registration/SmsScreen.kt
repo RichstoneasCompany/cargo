@@ -1,6 +1,5 @@
 package com.example.richstonecargo.presentation.registration
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
@@ -26,7 +24,6 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,7 +37,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -48,9 +44,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.richstonecargo.R
 import com.example.richstonecargo.common.Resource
 import com.example.richstonecargo.presentation.Screen
+import com.example.richstonecargo.presentation.layout.CargoTopBarWithoutProfile
 
 
 @Composable
@@ -75,34 +71,7 @@ fun SmsScreen(
 
     Scaffold(
         modifier = Modifier.background(primaryColor),
-        topBar = {
-            TopAppBar(
-                backgroundColor = primaryColor,
-                contentColor = Color.White,
-                elevation = 0.dp
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Cargo Logo",
-                        modifier = Modifier.size(150.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "RICHSTONE CARGO",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
-                        color = Color.White
-                    )
-                }
-            }
-        }
+        topBar = { CargoTopBarWithoutProfile() }
     ) { innerPadding ->
         Box(
             contentAlignment = Alignment.Center,
@@ -160,7 +129,7 @@ fun SmsScreen(
                     Spacer(modifier = Modifier.height(20.dp))
                     Button(
                         onClick = {
-                            viewModel.sendOtp(mobileNumber, otpCode)
+                            viewModel.sendOtp(otpCode)
                         },
                         modifier = Modifier
                             .fillMaxWidth(0.4f)
@@ -187,7 +156,7 @@ fun SmsScreen(
                     }
                     TextButton(
                         onClick = {
-                            viewModel.sendOtp(mobileNumber, otpCode)
+                            otpCode = ""
                         }
                     ) {
                         Text(
@@ -237,6 +206,7 @@ fun OtpFields(length: Int, code: String, onCodeChanged: (String) -> Unit) {
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 colors = TextFieldDefaults.textFieldColors(
+                    textColor = Color.White,
                     backgroundColor = Color.White,
                     unfocusedIndicatorColor = Color.White,
                     focusedIndicatorColor = Color.White,

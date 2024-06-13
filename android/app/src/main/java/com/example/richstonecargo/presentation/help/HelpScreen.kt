@@ -27,9 +27,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.richstonecargo.R
+import com.example.richstonecargo.domain.model.Topic
+import com.example.richstonecargo.domain.model.TopicListState
 import com.example.richstonecargo.presentation.Screen
 import com.example.richstonecargo.presentation.layout.CargoBottomBar
 import com.example.richstonecargo.presentation.layout.CargoTopBar
@@ -37,13 +39,12 @@ import com.example.richstonecargo.presentation.layout.CargoTopBar
 @Composable
 fun HelpScreen(
     navController: NavController,
-    helpViewModel: HelpViewModel = viewModel()
+    topicListViewModel: TopicListViewModel = hiltViewModel()
 ) {
     val primaryColor = Color(0xFF0A0E21)
     val cardBackgroundColor = Color(0xFF364156)
     val textColor = Color.White
-    val topics by helpViewModel.topics.observeAsState(initial = emptyList())
-
+    val state by topicListViewModel.state.observeAsState(TopicListState())
 
     Scaffold(
         modifier = Modifier.background(primaryColor),
@@ -75,16 +76,10 @@ fun HelpScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val menuItems = listOf(
-                    "Топ 10 вопросов",
-                    "Регистрация и Авторизация",
-                    "Рейсы и подготовка к рейсам",
-                    "Зарплата",
-                    "Действие в чрезвычайных ситуациях"
-                )
-
-                items(menuItems) { item ->
-                    HelpMenuItem(item, cardBackgroundColor, textColor, navController)
+                state.topics?.let { topics: List<Topic> ->
+                    items(topics) { topic: Topic ->
+                        HelpMenuItem(topic, cardBackgroundColor, textColor, navController)
+                    }
                 }
             }
         }
@@ -93,7 +88,7 @@ fun HelpScreen(
 
 @Composable
 fun HelpMenuItem(
-    text: String,
+    topic: Topic,
     backgroundColor: Color,
     textColor: Color,
     navController: NavController
@@ -106,7 +101,7 @@ fun HelpMenuItem(
             .height(80.dp)
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable {
-                navController.navigate("help_detail_screen")
+                navController.navigate("${Screen.HelpDetailScreen.route}/${topic.id}")
             }
     ) {
         Row(
@@ -118,7 +113,7 @@ fun HelpMenuItem(
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = text,
+                    text = topic.name,
                     color = textColor,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,

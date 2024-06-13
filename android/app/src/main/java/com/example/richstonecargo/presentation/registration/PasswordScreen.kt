@@ -1,7 +1,6 @@
 package com.example.richstonecargo.presentation.registration
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -24,7 +22,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,8 +34,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,6 +46,7 @@ import androidx.navigation.NavController
 import com.example.richstonecargo.R
 import com.example.richstonecargo.common.Resource
 import com.example.richstonecargo.presentation.Screen
+import com.example.richstonecargo.presentation.layout.CargoTopBarWithoutProfile
 
 @Composable
 fun PasswordScreen(
@@ -54,6 +55,7 @@ fun PasswordScreen(
     viewModel: PasswordScreenViewModel = hiltViewModel()
 ) {
     val primaryColor = Color(0xFF0A0E21)
+    val passwordMatchError = remember { mutableStateOf(false) }
 
     val registrationState by viewModel.registrationState.observeAsState()
     LaunchedEffect(registrationState) {
@@ -64,34 +66,7 @@ fun PasswordScreen(
 
     Scaffold(
         modifier = Modifier.background(primaryColor),
-        topBar = {
-            TopAppBar(
-                backgroundColor = primaryColor,
-                contentColor = Color.White,
-                elevation = 0.dp
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Cargo Logo",
-                        modifier = Modifier.size(150.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp)) // Give some space between the logo and text
-                    Text(
-                        text = "RICHSTONE CARGO",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
-                        color = Color.White
-                    )
-                }
-            }
-        }
+        topBar = { CargoTopBarWithoutProfile() }
     ) { innerPadding ->
         val password = remember { mutableStateOf("") }
         val confirmPassword = remember { mutableStateOf("") }
@@ -116,7 +91,10 @@ fun PasswordScreen(
             PasswordField(
                 value = password.value,
                 label = "Пароль",
-                onValueChange = { password.value = it }
+                onValueChange = {
+                    password.value = it
+                    passwordMatchError.value = password.value != confirmPassword.value
+                }
             )
             Text(
                 "Пароль должен содержать не менее 8 символов",
@@ -129,14 +107,25 @@ fun PasswordScreen(
             PasswordField(
                 value = confirmPassword.value,
                 label = "Подтверждение пароля",
-                onValueChange = { confirmPassword.value = it }
+                onValueChange = {
+                    confirmPassword.value = it
+                    passwordMatchError.value = password.value != confirmPassword.value
+                }
             )
+
+            if (passwordMatchError.value) {
+                Text("Пароли не совпадают", color = Color.Red, fontSize = 12.sp)
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
                 onClick = {
-                    viewModel.registerUser(mobileNumber, password.value)
+                    if (password.value == confirmPassword.value) {
+                        viewModel.registerUser(mobileNumber, password.value)
+                    } else {
+                        passwordMatchError.value = true
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.25f)
@@ -174,6 +163,7 @@ fun PasswordScreen(
 @Composable
 fun PasswordField(value: String, label: String, onValueChange: (String) -> Unit) {
     val glowColor = Color(0xFF5393F4) // The color for the glow effect
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
     Box(
         modifier = Modifier
@@ -181,26 +171,33 @@ fun PasswordField(value: String, label: String, onValueChange: (String) -> Unit)
             .background(color = Color.Transparent)
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
-            val canvasWidth = size.width
+            val canvasWidth = screenWidth * 0.3f
+
             val desiredHeight = size.height * 0.05f
 
             drawRect(
                 brush = Brush.radialGradient(
                     colors = listOf(glowColor.copy(alpha = 1f), Color.Transparent),
-
-                    radius = maxOf(
-                        canvasWidth
-                    ) / 1.5f
+                    radius = maxOf(canvasWidth.value, desiredHeight) / 1.5f
                 ),
-                topLeft = Offset(0f, (size.height - desiredHeight) / 1),
-                size = Size(width = canvasWidth, height = desiredHeight)
+                topLeft = Offset(
+                    (size.width - canvasWidth.toPx()) / 2f,
+                    (size.height - desiredHeight) / 1f
+                ),
+                size = Size(width = canvasWidth.toPx(), height = desiredHeight)
             )
         }
 
         TextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text(label, color = Color.White) },
+            label = {
+                Text(
+                    label, color = Color.White, fontFamily = FontFamily(
+                        Font(R.font.montserrat_regular)
+                    )
+                )
+            },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 textColor = Color.White,
                 backgroundColor = Color.Transparent,
@@ -208,6 +205,7 @@ fun PasswordField(value: String, label: String, onValueChange: (String) -> Unit)
                 focusedBorderColor = Color.Transparent,
                 disabledBorderColor = Color.Transparent
             ),
+            visualTransformation = PasswordVisualTransformation()
         )
     }
 }

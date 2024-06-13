@@ -4,9 +4,20 @@ import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
@@ -32,23 +43,20 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.richstonecargo.R
 import com.example.richstonecargo.data.remote.dto.LoginUserState
 import com.example.richstonecargo.global.NavigationCommand
 import com.example.richstonecargo.presentation.Screen
-import com.example.richstonecargo.presentation.layout.CargoTopBar
-
+import com.example.richstonecargo.presentation.layout.CargoTopBarWithoutProfile
+import com.example.richstonecargo.presentation.layout.PasswordField
 
 @Composable
 fun LoginScreen(
@@ -88,7 +96,8 @@ fun LoginScreen(
 
     Scaffold(
         modifier = Modifier.background(primaryColor),
-        topBar = { CargoTopBar(navController) }
+        topBar = { CargoTopBarWithoutProfile() },
+        bottomBar = { CargoBottomBarWithRoundedHelp(navController) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -117,10 +126,7 @@ fun LoginScreen(
                 AdditionalOptions(navController)
             }
         }
-        QuestionIconWithCircleClickable(
-            onClick = { navController.navigate(Screen.HelpScreen.route) },
-            modifier = Modifier.padding(start = 4.dp)
-        )
+
     }
 }
 
@@ -148,7 +154,7 @@ fun AuthorizationForm(
         Spacer(modifier = Modifier.height(24.dp))
         MobileNumberField(mobileNumber, onMobileNumberChange)
         Spacer(modifier = Modifier.height(16.dp))
-        PasswordField(password, onPasswordChange)
+        PasswordField(password, "Пароль", onPasswordChange)
         Row(modifier = Modifier.fillMaxWidth(), Arrangement.Center) {
             TextButton(
                 onClick = onForgotPasswordClick, modifier = Modifier.padding(start = 155.dp)
@@ -164,25 +170,26 @@ fun AuthorizationForm(
 @Composable
 fun MobileNumberField(value: String, onValueChange: (String) -> Unit) {
     val glowColor = Color(0xFF5393F4)
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     Box(
         modifier = Modifier
             .padding(16.dp)
             .background(color = Color.Transparent)
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
-            val canvasWidth = size.width
+            val canvasWidth = screenWidth * 0.3f
             val desiredHeight = size.height * 0.05f
 
             drawRect(
                 brush = Brush.radialGradient(
                     colors = listOf(glowColor.copy(alpha = 1f), Color.Transparent),
-
-                    radius = maxOf(
-                        canvasWidth
-                    ) / 1.5f
+                    radius = maxOf(canvasWidth.value, desiredHeight) / 1.5f
                 ),
-                topLeft = Offset(0f, (size.height - desiredHeight) / 1),
-                size = Size(width = canvasWidth, height = desiredHeight)
+                topLeft = Offset(
+                    (size.width - canvasWidth.toPx()) / 2f,
+                    (size.height - desiredHeight) / 1f
+                ),
+                size = Size(width = canvasWidth.toPx(), height = desiredHeight)
             )
         }
 
@@ -190,6 +197,7 @@ fun MobileNumberField(value: String, onValueChange: (String) -> Unit) {
             value = value,
             onValueChange = onValueChange,
             label = { Text("Мобильный номер", color = Color.White) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 textColor = Color.White,
                 backgroundColor = Color.Transparent,
@@ -199,33 +207,6 @@ fun MobileNumberField(value: String, onValueChange: (String) -> Unit) {
             ),
         )
     }
-}
-
-@Composable
-fun PasswordField(value: String, onValueChange: (String) -> Unit) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = {
-            Text(
-                "Пароль",
-                color = Color.White,
-                fontFamily = FontFamily(
-                    Font(R.font.montserrat_regular)
-                ),
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp
-            )
-        },
-        visualTransformation = PasswordVisualTransformation(),
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = Color.White,
-            backgroundColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        )
-    )
 }
 
 @Composable

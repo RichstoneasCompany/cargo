@@ -5,5 +5,7 @@ data class UserDetailsDto(
     val firstname: String,
     val lastname: String,
     val email: String,
-    val phone: String
+    val phone: String,
+    val gender: String,
+    val birthDate: String?,
 )

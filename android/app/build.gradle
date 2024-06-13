@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -20,11 +21,19 @@ android {
             useSupportLibrary true
         }
     }
-
+    signingConfigs {
+        release {
+            keyAlias 'cargo_key'
+            keyPassword 'qweasd123'
+            storeFile file('/Users/arslan/work/diplomka/richstoneas_cargo/sign_key/cargo_key')
+            storePassword 'qweasd123'
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -89,4 +98,8 @@ dependencies {
     implementation "io.coil-kt:coil-compose:2.0.0"
 
     implementation "androidx.security:security-crypto:1.0.0-rc04"
+
+    implementation 'com.google.firebase:firebase-messaging:22.0.0' // Compatible version
+    implementation platform('com.google.firebase:firebase-bom:28.4.1') // Compatible BOM version
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 }

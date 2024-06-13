@@ -1,5 +1,7 @@
 package com.example.richstonecargo.presentation.trip_list
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,9 +23,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -35,140 +40,138 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.richstonecargo.domain.model.TripListState
+import com.example.richstonecargo.domain.model.TripStatus
 import com.example.richstonecargo.presentation.Screen
 import com.example.richstonecargo.presentation.layout.CargoBottomBar
 import com.example.richstonecargo.presentation.layout.CargoTopBar
 import com.example.richstonecargo.presentation.ui.theme.PlayFairDisplayFontFamily
+import com.example.richstonecargo.presentation.util.DateComponent
+import com.example.richstonecargo.presentation.util.extractDateComponent
+import java.text.SimpleDateFormat
+import java.util.Locale
 
+val primaryColor = Color(0xFF0A0E21)
+val textColor = Color.White
+val highlightColor = Color(0xFF0066FF)
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TripListScreen(
-    navController: NavController
+    navController: NavController, viewModel: TripListViewModel = hiltViewModel()
 ) {
-    val primaryColor = Color(0xFF0A0E21)
-    val textColor = Color.White
-    val highlightColor = Color(0xFF0066FF)
-    val tripsData = listOf(
-        TripData(
-            date = "01",
-            year = "2024",
-            month = "МАРТ",
-            tripNumber = "CU-425",
-            route = "Алматы-Хоргос",
-            loadingTime = "09:00",
-            tripTime = "3ч. 37м.",
-            isCurrentCargo = false
-        ),
-        // ... add four more TripData instances with different data
-        TripData(
-            date = "02",
-            year = "2024",
-            month = "МАРТ",
-            tripNumber = "CU-426",
-            route = "Нур-Султан-Хоргос",
-            loadingTime = "10:00",
-            tripTime = "4ч. 00м.",
-            isCurrentCargo = true
-        ),
-        TripData(
-            date = "03",
-            year = "2024",
-            month = "МАРТ",
-            tripNumber = "CU-427",
-            route = "Шымкент-Хоргос",
-            loadingTime = "11:00",
-            tripTime = "2ч. 30м.",
-            isCurrentCargo = false
-        ),
-        TripData(
-            date = "04",
-            year = "2024",
-            month = "МАРТ",
-            tripNumber = "CU-428",
-            route = "Атырау-Хоргос",
-            loadingTime = "12:00",
-            tripTime = "5ч. 15м.",
-            isCurrentCargo = false
-        ),
-        TripData(
-            date = "05",
-            year = "2024",
-            month = "МАРТ",
-            tripNumber = "CU-429",
-            route = "Костанай-Хоргос",
-            loadingTime = "13:00",
-            tripTime = "3ч. 45м.",
-            isCurrentCargo = false
-        )
-    )
+    val state by viewModel.state.observeAsState(TripListState())
     val scrollState = rememberLazyListState()
+
     Scaffold(
-        modifier = Modifier.background(primaryColor),
-        topBar = {
-            CargoTopBar(
-                navController = navController
-            )
-        },
+        modifier = Modifier
+            .background(primaryColor)
+            .fillMaxSize(),
+        topBar = { CargoTopBar(navController = navController) },
         bottomBar = {
             CargoBottomBar(
-                selectedRoute = Screen.TripListScreen.route,
-                navController = navController
+                selectedRoute = Screen.TripListScreen.route, navController = navController
             )
-        }
-    )
-    { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            LazyColumn(
-                state = scrollState,
-                modifier = Modifier
-                    .background(primaryColor)
-                    .fillMaxSize()
-            ) {
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Расписание рейсов",
-                        color = textColor,
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
+        }) { innerPadding ->
+
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .background(primaryColor)
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Расписание рейсов",
+                color = textColor,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            when {
+                state.isLoading -> Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(primaryColor)
+                ) {
+                    CircularProgressIndicator(color = Color.White)
                 }
-                items(tripsData) { trip ->
-                    TripCard(
-                        tripDate = trip.date,
-                        tripYear = trip.year,
-                        tripMonth = trip.month,
-                        tripNumber = trip.tripNumber,
-                        tripRoute = trip.route,
-                        loadingTime = trip.loadingTime,
-                        tripTime = trip.tripTime,
-                        textColor = textColor,
-                        highlightColor = highlightColor,
-                        onClick = {
-                            // TODO: Handle navigation to the trip details
-                        },
-                        navController = navController,
-                        isCurrentCargo = trip.isCurrentCargo
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
+
+                state.error.isNotEmpty() ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(primaryColor),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = state.error, color = Color.Red
+                        )
+                    }
+
+                state.trips.isNullOrEmpty() ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(primaryColor),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "Нет данных о рейсах",
+                            color = textColor,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                else -> {
+                    Box {
+                        LazyColumn(state = scrollState, modifier = Modifier.fillMaxSize()) {
+                            items(state.trips!!) { trip ->
+                                TripCard(
+                                    tripId = trip.id,
+                                    tripNumber = trip.tripNumber,
+                                    tripTime = trip.duration,
+                                    loadingTime = SimpleDateFormat(
+                                        "HH:mm dd.MM.yyyy", Locale.US
+                                    ).format(trip.departureDate),
+                                    textColor = textColor,
+                                    isCurrentCargo = trip.status == TripStatus.IN_PROGRESS,
+                                    highlightColor = highlightColor,
+                                    navController = navController,
+                                    tripDate = extractDateComponent(
+                                        trip.departureDate, DateComponent.DAY
+                                    ),
+                                    tripMonth = extractDateComponent(
+                                        trip.departureDate, DateComponent.MONTH_NAME
+                                    ),
+                                    tripRoute = trip.departurePlace,
+                                    tripYear = extractDateComponent(
+                                        trip.departureDate, DateComponent.YEAR
+                                    ),
+                                    onClick = { /* Navigation logic */ })
+                            }
+                        }
+                        CustomScrollbar(
+                            scrollState = scrollState,
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(end = 56.dp)
+                        )
+                    }
                 }
             }
-            CustomScrollbar(
-                scrollState = scrollState,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 56.dp, top = 78.dp)
-            )
         }
     }
 }
 
 @Composable
 fun TripCard(
+    tripId: Long,
     tripDate: String,
     tripYear: String,
     tripMonth: String,
@@ -247,14 +250,10 @@ fun TripCard(
                         fontSize = 24.sp
                     )
                     Text(
-                        text = "Время погрузки: $loadingTime",
-                        color = textColor,
-                        fontSize = 14.sp
+                        text = "Время погрузки: $loadingTime", color = textColor, fontSize = 14.sp
                     )
                     Text(
-                        text = "Время в пути: $tripTime",
-                        color = textColor,
-                        fontSize = 14.sp
+                        text = "Время в пути: $tripTime", color = textColor, fontSize = 14.sp
                     )
                 }
                 Spacer(modifier = Modifier.weight(0.5f))
@@ -269,15 +268,13 @@ fun TripCard(
                         fontSize = 24.sp
                     )
                     Spacer(modifier = Modifier.height(30.dp))
-                    Text(
-                        text = "Подробнее >",
+                    Text(text = "Подробнее >",
                         color = textColor,
                         fontWeight = FontWeight.Normal,
                         fontSize = 18.sp,
                         modifier = Modifier.clickable {
-                            navController.navigate("about_trip_screen")
-                        }
-                    )
+                            navController.navigate("about_trip_screen/${tripId}")
+                        })
                 }
                 Spacer(modifier = Modifier.weight(0.5f))
             }
@@ -286,61 +283,68 @@ fun TripCard(
 }
 
 
-data class TripData(
-    val date: String,
-    val year: String,
-    val month: String,
-    val tripNumber: String,
-    val route: String,
-    val loadingTime: String,
-    val tripTime: String,
-    val isCurrentCargo: Boolean
-)
-
 @Composable
 fun CustomScrollbar(
     scrollState: LazyListState,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     thumbColor: Color = Color.White,
     trackColor: Color = Color(0x55FFFFFF),
     thumbWidth: Dp = 12.dp,
-    thumbHeight: Dp = 70.dp,
-    trackWidth: Dp = 12.dp
+    trackWidth: Dp = 12.dp,
+    minThumbHeight: Dp = 48.dp,
+    trackHeightFactor: Float = 1f,
+    thumbHeightFactor: Float = 0.6f
 ) {
     Box(
         modifier = modifier
             .fillMaxHeight()
             .width(thumbWidth)
-            .padding(top = 48.dp, end = 8.dp, bottom = 48.dp)
+            .padding(end = 8.dp)
     ) {
-
         Canvas(modifier = Modifier.matchParentSize()) {
             val canvasHeight = size.height
             val canvasWidth = size.width
-            val thumbHeightPx = thumbHeight.toPx()
 
-            // трек ползунка
-            drawRect(
-                color = trackColor,
-                topLeft = Offset(x = (canvasWidth - trackWidth.toPx()) / 2, y = 0f),
-                size = Size(width = trackWidth.toPx(), height = canvasHeight)
-            )
+            val firstVisibleItemIndex = scrollState.firstVisibleItemIndex
+            val firstVisibleItemScrollOffset = scrollState.firstVisibleItemScrollOffset
+            val totalItemsCount = scrollState.layoutInfo.totalItemsCount
+            val visibleItemsInfo = scrollState.layoutInfo.visibleItemsInfo
 
-            // Расчет позиции ползунка
-            val totalScrollRange = scrollState.layoutInfo.totalItemsCount - 1
-            val currentScrollFraction = if (totalScrollRange != 0) {
-                scrollState.firstVisibleItemIndex.toFloat() / totalScrollRange
-            } else 0f
-            val thumbTop = currentScrollFraction * (canvasHeight - thumbHeightPx)
+            if (visibleItemsInfo.isNotEmpty()) {
+                val viewportHeight = scrollState.layoutInfo.viewportEndOffset.toFloat()
+                val totalContentHeight = totalItemsCount * visibleItemsInfo[0].size.toFloat()
 
-            // ползунок
-            drawRoundRect(
-                color = thumbColor,
-                topLeft = Offset(x = (canvasWidth - thumbWidth.toPx()) / 2, y = thumbTop),
-                size = Size(width = thumbWidth.toPx(), height = thumbHeightPx),
-                cornerRadius = CornerRadius(4.dp.toPx())
-            )
+                val trackHeight = canvasHeight * trackHeightFactor
+
+                val proportionVisible = viewportHeight / totalContentHeight
+                val thumbHeightPx =
+                    (canvasHeight * thumbHeightFactor * proportionVisible).coerceAtLeast(
+                        minThumbHeight.toPx()
+                    )
+
+                val totalScrollRange = totalContentHeight - viewportHeight
+                val currentScrollOffset =
+                    (firstVisibleItemIndex * visibleItemsInfo[0].size + firstVisibleItemScrollOffset).toFloat()
+                val scrollFraction = currentScrollOffset / totalScrollRange
+
+                val thumbOffset = scrollFraction * (canvasHeight - thumbHeightPx)
+
+                // Track
+                drawRoundRect(
+                    color = trackColor,
+                    topLeft = Offset(x = (canvasWidth - trackWidth.toPx()) / 2, y = 0f),
+                    size = Size(width = trackWidth.toPx(), height = trackHeight),
+                    cornerRadius = CornerRadius(4.dp.toPx())
+                )
+
+                // Thumb
+                drawRoundRect(
+                    color = thumbColor,
+                    topLeft = Offset(x = (canvasWidth - thumbWidth.toPx()) / 2, y = thumbOffset),
+                    size = Size(width = thumbWidth.toPx(), height = thumbHeightPx),
+                    cornerRadius = CornerRadius(4.dp.toPx())
+                )
+            }
         }
     }
 }
-
